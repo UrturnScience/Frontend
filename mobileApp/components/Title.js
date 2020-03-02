@@ -1,50 +1,100 @@
 import React, { Component } from 'react';
-import {  StyleSheet,View,Text, Image } from 'react-native';
-import {Button, Alert } from 'react-native';
-
+import {Alert,  StyleSheet,View,Text, Image } from 'react-native';
+import { Button,Item } from 'native-base';
+import Email from './emailAuth'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 
 const styles = StyleSheet.create({
-   
+  parentView:{
+    flex:1,
+    
+  },
+   topView:{
+    flex:.5,
+    backgroundColor:'white',
+    justifyContent:'center',
+    flexDirection:"column",
+    alignItems:'center',
+   },
     logoView:{
-      flex: 1,
-   
+      flex: .3,
       justifyContent:'center',
       alignItems: 'center',
-      height:100
+      backgroundColor:'white',
+      height:50,
+      marginBottom:20
   
     },
-  
+    socialView:{
+      flex:.5,
+      justifyContent:'center',
+      backgroundColor:'white',
+      padding:10,
+      width:400,
+      alignItems:'center'
+    },
+
+
+    bottomView:{
+      flex:.5,
+      justifyContent:'center',
+      backgroundColor:'white',
+    },
+    botTextView:{
+      flex:.3,
+      backgroundColor:'red',
+      justifyContent: 'center'
+
+    }
   });
 
-function Title ({navigation}){
+class Title extends Component{
+
+render()
+{
   return (
-        <View style={styles.logoView}>
-              <Image style={{height:250}} resizeMode = 'contain' source= {require('../assets/ur.jpeg')}></Image>
+    <View style={styles.parentView}>
+        <View style={styles.topView}>
+          <View style={styles.logoView}>
+              <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.jpeg')}></Image>
               <Text style={{padding:5,fontSize:30,fontWeight:'bold',fontFamily:'Arial'}} >Urturn </Text>
               <Text style={{fontSize:20,fontFamily:'Arial'}} >Improving shared living</Text>
-          
-          
-          
-          
-          
-          <View style={{marginTop:100, flex:1, flexDirection:'column', height:300,width:300}}>
-          <View style = {{marginBottom:10,height:50, width:300, backgroundColor:'blue',alignItems:'center',justifyContent:'center'}}>
-            <Button title="Facebook" onPress={()=>Alert.alert("Facebook Pressed")}/ >
           </View>
+              
+              
+              <View style= {styles.socialView}>
+              
+                <Button 
+                full rounded style = {{marginTop:10}} primary
+                 onPress={()=>Alert.alert("Facebook Pressed")}>
+                   <Text style={{color:'white'}}> Facebook</Text>
+                </Button>
+            
 
-          <View style = {{marginBottom:10,width:300, height:50, backgroundColor:'antiquewhite',alignItems:'center',justifyContent:'center',}}>
-          <Button title="Google" onPress={()=>Alert.alert("Google Pressed")}/ >
-          </View>
-
-          <View style = {{marginBottom:10,width:300, height:50, backgroundColor:'yellow',alignItems:'center',justifyContent:'center',}}>
-          <Button title="Email" 
-          onPress={()=>navigation.navigate('Email')} />
-          </View>
+                <Button 
+                full rounded style = {{marginTop:10}} light
+                 onPress={()=>Alert.alert("Facebook Pressed")}>
+                   <Text style={{color:'black'}}> Google</Text>
+                </Button>
+               
+                 
+                
+                
+            </View>
+            <Text style = {{marginTop:40,color: 'grey'}}>--------------------------- OR --------------------------</Text>
+          
+          
+          
+            </View>
+            <View style = {styles.bottomView}>
+            <Email/>
+          
         </View>
         </View>
-    )}
-
+    )
+  }
+    
+  }
 export default Title
