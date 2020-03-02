@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Alert,  StyleSheet,View,Text, Image } from 'react-native';
+import {Alert, ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
 import { Button,Item } from 'native-base';
 import Email from './emailAuth'
 import { NavigationContainer } from '@react-navigation/native';
@@ -9,20 +9,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 const styles = StyleSheet.create({
   parentView:{
     flex:1,
-    
+    resizeMode: 'contain',
+    width:'100%',
+    height:'100%'
+
   },
    topView:{
     flex:.5,
-    backgroundColor:'white',
+   
     justifyContent:'center',
     flexDirection:"column",
     alignItems:'center',
    },
     logoView:{
       flex: .3,
+      marginTop:50,
       justifyContent:'center',
       alignItems: 'center',
-      backgroundColor:'white',
+     
       height:50,
       marginBottom:20
   
@@ -30,7 +34,7 @@ const styles = StyleSheet.create({
     socialView:{
       flex:.5,
       justifyContent:'center',
-      backgroundColor:'white',
+     
       padding:10,
       width:400,
       alignItems:'center'
@@ -40,11 +44,12 @@ const styles = StyleSheet.create({
     bottomView:{
       flex:.5,
       justifyContent:'center',
-      backgroundColor:'white',
+     
+    
     },
     botTextView:{
       flex:.3,
-      backgroundColor:'red',
+      
       justifyContent: 'center'
 
     }
@@ -55,10 +60,10 @@ class Title extends Component{
 render()
 {
   return (
-    <View style={styles.parentView}>
+    <ImageBackground style={styles.parentView} source = {require('../assets/room.jpeg')}>
         <View style={styles.topView}>
           <View style={styles.logoView}>
-              <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.jpeg')}></Image>
+              <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.png')}></Image>
               <Text style={{padding:5,fontSize:30,fontWeight:'bold',fontFamily:'Arial'}} >Urturn </Text>
               <Text style={{fontSize:20,fontFamily:'Arial'}} >Improving shared living</Text>
           </View>
@@ -92,7 +97,7 @@ render()
             <Email/>
           
         </View>
-        </View>
+        </ImageBackground>
     )
   }
     

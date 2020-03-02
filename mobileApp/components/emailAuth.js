@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import {TextInput, StyleSheet, Text, View, Image, Alert } from 'react-native';
 
 import firebase from '../firebase'
 
@@ -79,11 +79,13 @@ export default class emailAuth extends Component {
 
 render(){
   return (
-    <Container style={styles.container}> 
+    <View style={styles.container}> 
       <Form>
+         
         <Item floatingLabel>
-          <Label>Email</Label>
+          <Label style={{color:'black'}}>Email:</Label>
           <Input
+          
           onChangeText = {(email) => this.setState({email})}
           autoCorrect = {false}
           autoCapitailize = "none"
@@ -91,7 +93,7 @@ render(){
         </Item>
 
         <Item floatingLabel>
-          <Label>Password</Label>
+          <Label style={{color:'black'}}>Password:</Label>
           <Input
           secureTextEntry = {true}
           autoCorrect = {false}
@@ -99,7 +101,7 @@ render(){
           onChangeText = {(password) => this.setState({password})}
         />
         </Item>
-
+        
         <Button style = {{marginTop:10}}
         full rounded success
         onPress = {()=> this.login(this.state.email,this.state.password)}>
@@ -108,13 +110,13 @@ render(){
         </Button>
 
         <Button style = {{marginTop:10}}
-        full rounded primary
+        full rounded warning
         onPress = {()=> this.signup(this.state.email,this.state.password)}>
 
           <Text style= {{color: 'black'}}> Sign Up</Text>
         </Button>
       </Form>
-    </Container>
+    </View>
   );
 }
 }
@@ -124,28 +126,14 @@ const styles = StyleSheet.create({
     flex:1,
     
   },
-  topView:
-  {
-    flex:1,
-    flexDirection: "column",
-    
-  },
-  bottomView:
-  {
-    flex:1,
-    backgroundColor:'lavender',
-    flexDirection:'column',
-    alignItems:'center',
-    justifyContent:'center'
-   
-  },
+ 
   container:
   {
     flex:1,
-    backgroundColor:'white',
     justifyContent:'center',
     padding:10,
-    marginBottom:250
+    marginBottom:200,
+    marginTop:30
   
   }
 
