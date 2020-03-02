@@ -13,8 +13,8 @@ export default class App extends Component {
 render(){
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Title">
-      <Stack.Screen name = "Title" component = {Title}/>
+      <Stack.Navigator initialRouteName="Email">
+     
         <Stack.Screen name = "Email" component = {Email}/>
         
       </Stack.Navigator>
