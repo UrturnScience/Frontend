@@ -189,9 +189,7 @@ render()
                    <Text style={{color:'black'}}> Google</Text>
                 </Button>
                
-                 
-                
-                
+
             </View>
             <Text style = {{marginTop:40,color: 'grey'}}>--------------------------- OR --------------------------</Text>
           
