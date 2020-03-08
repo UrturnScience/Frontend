@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Title from './components/Title'
 import { Ionicons } from '@expo/vector-icons';
+import Preferences from './components/preferences'
 
 
 const Stack = createStackNavigator();
@@ -71,7 +72,7 @@ render(){
       tabBarOptions={{activeTintColor: 'tomato', inactiveTintColor:'gray'}}>
         
       <Tab.Screen name = "Home" component ={HomeScreen}/>
-      <Tab.Screen name = "Preferences" component ={preferencesScreen}/>
+      <Tab.Screen name = "Preferences" component ={Preferences}/>
       <Tab.Screen name = "Messaging" component ={messagingScreen}/>
       <Tab.Screen name = "Settings" component ={SettingsScreen}/>
       
