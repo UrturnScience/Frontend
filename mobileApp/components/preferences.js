@@ -9,7 +9,7 @@ const exampleData = [...Array(20)].map((d, index) => ({
     label: index,
     backgroundColor: 'red'
   }));
-const list = ["dishes", "vaccum", "take trash out"]
+const list = ["dishes", "vaccum", "take trash out", "Get Eli started on frontend"]
 const listItems = list.map((chore,index)=> ({
     key: `item-${index}`,
     label: chore,
