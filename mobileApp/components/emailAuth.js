@@ -8,7 +8,9 @@ import {Container, Content, Header, Form,Input,Item,Button, Label} from 'native-
 function emailIsValid (email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
+
 export default class emailAuth extends Component {
+  
   constructor(props)
   {
     super(props)
@@ -18,8 +20,7 @@ export default class emailAuth extends Component {
     })
   }
   
-  
-  signup =(email, password) =>{
+  signup = (email, password) =>{
     try{
       if(this.state.password.length<1||this.state.email.length<0)
       {
@@ -36,9 +37,6 @@ export default class emailAuth extends Component {
         alert("Please enter at least 6 characters long!")
         return;
       }
-      
-  
-  
       firebase.auth().createUserWithEmailAndPassword(email,password)
       alert("Congrats you have signed up with email!")
     }
@@ -48,28 +46,26 @@ export default class emailAuth extends Component {
     }
   }
 
-  login =(email, password) =>{
+  login = (email, password) =>{
     try{
-        if(this.state.password.length<1||this.state.email.length<0)
+        
+      if(this.state.password.length<1||this.state.email.length<0)
         {
             alert("Please fill in both email and password")
             return;
         }
-        else if(emailIsValid(this.state.email)==false)
+      else if(emailIsValid(this.state.email)==false)
         {
           alert("Please enter a valid email!")
           return;
         }
-        else if(this.state.password.length<6)
+      else if(this.state.password.length<6)
         {
           alert("Please enter password at least 6 characters long!")
           return;
         }
         
-      firebase.auth().signInWithEmailAndPassword(email,password).then(function(user){
-        console.log(user)
-      }
-      )
+      firebase.auth().signInWithEmailAndPassword(email,password).then(this.onLoginSuccess)
     }
     catch(error)
     {
@@ -77,56 +73,60 @@ export default class emailAuth extends Component {
     }
   }
 
-render(){
-  return (
-    <View style={styles.container}> 
-      <Form>
-         
-        <Item floatingLabel>
-          <Label style={{color:'black'}}>Email:</Label>
-          <Input
+  onLoginSuccess = (user) => {
+    console.log('\nLogin by email successful !\n')
+  }
+
+  render(){
+    return (
+      <View style={styles.container}> 
+        <Form>
           
-          onChangeText = {(email) => this.setState({email})}
-          autoCorrect = {false}
-          autoCapitailize = "none"
-        />
-        </Item>
+          <Item floatingLabel>
+            <Label style={{color:'black'}}>Email:</Label>
+            <Input
+            
+            onChangeText = {(email) => this.setState({email})}
+            autoCorrect = {false}
+            autoCapitailize = "none"
+          />
+          </Item>
 
-        <Item floatingLabel>
-          <Label style={{color:'black'}}>Password:</Label>
-          <Input
-          secureTextEntry = {true}
-          autoCorrect = {false}
-          autoCapitailize = "none"
-          onChangeText = {(password) => this.setState({password})}
-        />
-        </Item>
-        
-        <Button style = {{marginTop:10}}
-        full rounded success
-        onPress = {()=> this.login(this.state.email,this.state.password)}>
+          <Item floatingLabel>
+            <Label style={{color:'black'}}>Password:</Label>
+            <Input
+            secureTextEntry = {true}
+            autoCorrect = {false}
+            autoCapitailize = "none"
+            onChangeText = {(password) => this.setState({password})}
+          />
+          </Item>
+          
+          <Button style = {{marginTop:10}}
+          full rounded success
+          onPress = {()=> this.login(this.state.email,this.state.password)}>
 
-          <Text style={{color:'white'}}> Login</Text>
-        </Button>
+            <Text style={{color:'white'}}> Login</Text>
+          
+          </Button>
 
-        <Button style = {{marginTop:10}}
-        full rounded warning
-        onPress = {()=> this.signup(this.state.email,this.state.password)}>
+          <Button style = {{marginTop:10}}
+          full rounded warning
+          onPress = {()=> this.signup(this.state.email,this.state.password)}>
 
-          <Text style= {{color: 'black'}}> Sign Up</Text>
-        </Button>
-      </Form>
-    </View>
-  );
-}
+            <Text style= {{color: 'black'}}> Sign Up</Text>
+          
+          </Button>
+        </Form>
+      </View>
+    );
+  }
 }
  
 const styles = StyleSheet.create({
   parentView:{
     flex:1,
-    
   },
- 
   container:
   {
     flex:1,
@@ -134,9 +134,5 @@ const styles = StyleSheet.create({
     padding:10,
     marginBottom:200,
     marginTop:30
-  
   }
-
-
-
 });
