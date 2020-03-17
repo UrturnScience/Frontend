@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {TextInput, StyleSheet, Text, View, Image, Alert } from 'react-native';
 
-import firebase from '../firebase'
+import firebase from 'firebase'
 
 import {Container, Content, Header, Form,Input,Item,Button, Label} from 'native-base'
 

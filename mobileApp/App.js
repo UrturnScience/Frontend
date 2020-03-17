@@ -8,7 +8,8 @@ import Title from './components/Title'
 import { Ionicons } from '@expo/vector-icons';
 import Preferences from './components/preferences'
 import SettingsPage from './components/SettingsPage'
-import firebase from './firebase'
+import firebase from 'firebase'
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
