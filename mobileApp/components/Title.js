@@ -145,17 +145,28 @@ class Title extends Component{
     }
   }
 
-  async loginWithFacebook(){
-    const { type, token } = await Facebook.logInWithReadPermissionsAsync(
-      '1058666187865777',
-      { permissions: ['email', 'public_profile'] }
-    )
-
-    if(type == 'success'){
-      const credential = firebase.auth.FacebookAuthProvider.credential(token)
-      firebase.auth().signInWithCredential(credential).catch((error) => {
-        console.log(error)
-      })
+  async loginWithFacebook() {
+    try {
+      await Facebook.initializeAsync('1058666187865777');
+      const {
+        type,
+        token,
+        expires,
+        permissions,
+        declinedPermissions,
+      } = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile'],
+      });
+      if (type === 'success') {
+            const credential = firebase.auth.FacebookAuthProvider.credential(token)
+            firebase.auth().signInWithCredential(credential).catch((error) => {
+              console.log(error)
+            })
+      } else {
+        // type === 'cancel'
+      }
+    } catch ({ message }) {
+      alert(`Facebook Login Error: ${message}`);
     }
   }
 

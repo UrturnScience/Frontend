@@ -21,6 +21,7 @@ const listItems = list.map((chore,index)=> ({
 
 
 class Preferences extends Component {
+  
   state = {
     data: listItems
   };
