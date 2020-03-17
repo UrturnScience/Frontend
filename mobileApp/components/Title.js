@@ -6,8 +6,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase'
-import * as Facebook from 'expo-facebook'; 
+import * as Facebook from 'expo-facebook';
+import {firebaseConfig} from '../firebase.js' 
 
+if(!firebase.apps.length){
+  firebase.initializeApp(firebaseConfig)
+}
 
 const styles = StyleSheet.create({
   parentView:{
@@ -138,6 +142,20 @@ class Title extends Component{
       }
     } catch (e) {
       return { error: true };
+    }
+  }
+
+  async loginWithFacebook(){
+    const { type, token } = await Facebook.logInWithReadPermissionsAsync(
+      '1058666187865777',
+      { permissions: ['email', 'public_profile'] }
+    )
+
+    if(type == 'success'){
+      const credential = firebase.auth.FacebookAuthProvider.credential(token)
+      firebase.auth().signInWithCredential(credential).catch((error) => {
+        console.log(error)
+      })
     }
   }
 
