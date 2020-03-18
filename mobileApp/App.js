@@ -7,10 +7,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Title from './components/Title'
 import { Ionicons } from '@expo/vector-icons';
 import Preferences from './components/preferences'
+import SettingsPage from './components/SettingsPage'
+import firebase from 'firebase'
 
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
 function HomeScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -18,20 +21,7 @@ function HomeScreen() {
     </View>
   );
 }
-function SettingsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
-function preferencesScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Preferences!</Text>
-    </View>
-  );
-}
+
 function messagingScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -40,48 +30,83 @@ function messagingScreen() {
   );
 }
 
+
 export default class App extends Component {
   
-render(){
-  return (
-    <NavigationContainer>
-      
-      <Tab.Navigator
-      screenOptions={({route})=> ({
-        tabBarIcon:({focused,color,size})=>{
-          let iconName;
-          if(route.name=="Home")
-          {
-            iconName = focused
-            ? 'ios-information-circle'
-            : 'ios-information-circle-outline';
-          }
-          else if(route.name === 'Settings'){
-            iconName = focused ? 'ios-list-box' : 'ios-list'
-          }
-          else if(route.name === 'Preferences'){
-            iconName = focused ? 'md-options':'ios-options'
-          }
-          else if(route.name === 'Messaging'){
-            iconName = focused ? 'md-chatboxes':'ios-chatboxes'
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        }
-        
-      })}
-      tabBarOptions={{activeTintColor: 'tomato', inactiveTintColor:'gray'}}>
-        
-      <Tab.Screen name = "Home" component ={HomeScreen}/>
-      <Tab.Screen name = "Preferences" component ={Preferences}/>
-      <Tab.Screen name = "Messaging" component ={messagingScreen}/>
-      <Tab.Screen name = "Settings" component ={SettingsScreen}/>
-      
-      </Tab.Navigator>
+  state={
+    loggedIn:null
+  }
 
-    </NavigationContainer>
-   
-  );
-}
+  componentDidMount(){
+
+    firebase.auth().onAuthStateChanged(user => {
+      if(user){
+        this.setState({
+          loggedIn:true
+        })
+      }else{
+        this.setState({
+          loggedIn:false
+        })
+      }
+    })
+
+  }
+
+  renderContent = () => {
+    
+    switch(this.state.loggedIn){
+      
+      case false:
+        return (<Title></Title>)
+      
+      case true:
+        return (
+            <NavigationContainer>
+              <Tab.Navigator
+              screenOptions={({route})=> ({
+                tabBarIcon:({focused,color,size})=>{
+                  let iconName;
+                  if(route.name=="Home")
+                  {
+                    iconName = focused
+                    ? 'ios-information-circle'
+                    : 'ios-information-circle-outline';
+                  }
+                  else if(route.name === 'Settings'){
+                    iconName = focused ? 'ios-list-box' : 'ios-list'
+                  }
+                  else if(route.name === 'Preferences'){
+                    iconName = focused ? 'md-options':'ios-options'
+                  }
+                  else if(route.name === 'Messaging'){
+                    iconName = focused ? 'md-chatboxes':'ios-chatboxes'
+                  }
+                  return <Ionicons name={iconName} size={size} color={color} />;
+                }
+              })}
+              tabBarOptions={{activeTintColor: 'tomato', inactiveTintColor:'gray'}}>
+      
+              <Tab.Screen name = "Home" component ={HomeScreen}/>
+              <Tab.Screen name = "Preferences" component ={Preferences}/>
+              <Tab.Screen name = "Messaging" component ={messagingScreen}/>
+              <Tab.Screen name = "Settings" component ={SettingsPage}/>
+              
+              </Tab.Navigator>
+            </NavigationContainer>
+          )
+    }
+  }
+
+  render() {
+    return(
+      <View style={styles.container}>
+        {this.renderContent()}
+      </View>
+    )
+  }
+  
+  
 }
  
 const styles = StyleSheet.create({
@@ -111,7 +136,4 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     padding:10
   }
-
-
-
 });
