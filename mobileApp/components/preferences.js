@@ -1,41 +1,54 @@
 import React, { Component } from 'react';
 import {Alert, TouchableOpacity,ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
-import { Button,Item } from 'native-base';
+import { Button,Item} from 'native-base';
 import DraggableFlatList from "react-native-draggable-flatlist";
+import Dialog from 'react-native-dialog';
 
 
-const exampleData = [...Array(20)].map((d, index) => ({
-    key: `item-${index}`, // For example only -- don't use index as your key!
-    label: index,
-    backgroundColor: 'red'
-}));
-
-const list = ["dishes", "vaccum", "take trash out", "Get Eli started on frontend"]
-
-const listItems = list.map((chore,index)=> ({
-    key: `item-${index}`,
-    label: chore,
-    backgroundColor:'grey',  
-}))
-  
+function Separator() {
+  return <View style={styles.separator} />;
+}
 
 
 class Preferences extends Component {
+
+  choreList = ["Dishes", "Vaccum", "Take Out Trash", "Get Eli Started On Frontend"];
+
+  listItems = this.choreList.map((chore,index) => ({
+    key: `Chore ${index}`,
+    label: chore,
+    backgroundColor:'grey',  
+  }))
   
   state = {
-    data: listItems
+    data: this.listItems,
+    isAddChorePopupVisible: false
   };
+
+  addChoreDialogPopup = () => {
+    this.setState({ isAddChorePopupVisible: true});
+  }
+
+  cancelAddingChore = () => {
+    this.setState({ isAddChorePopupVisible: false});
+  }
+
+  addChore = (newChore) => {
+    this.listItems.push(newChore["nativeEvent"]["text"], this.listItems.length+1)
+    console.log("this.listItems: ", this.listItems)
+    this.setState({ isAddChorePopupVisible: false})
+  }
 
   renderItem = ({ item, index, drag, isActive }) => {
     return (
       <TouchableOpacity
         style={{
           height: 50,
-          backgroundColor: isActive ? "blue" : item.backgroundColor,
+          backgroundColor: isActive ? "lightblue" : item.backgroundColor,
           alignItems: "center",
           justifyContent: "center"
         }}
-        onPressIn={drag}
+        onLongPress={drag}
       >
         <Text
           style={{
@@ -54,21 +67,35 @@ class Preferences extends Component {
       
       <View style={{ marginTop:40, flex: 1 }}>
           <View style={styles.parentStyle}>
-            <Text style={{fontWeight:'bold',fontSize:40}}>Preferences Page</Text>
+            <Text style={{fontWeight:'bold',fontSize:40}}>Preferences</Text>
           </View>
+
+          <Separator />
           
         <DraggableFlatList
-          data={this.state.data}
+          data={this.listItems}
           renderItem={this.renderItem}
           keyExtractor={(item, index) => `draggable-item-${item.key}`}
           onDragEnd={({data}) => this.setState({ data })}
+          autoscrollThreshold={50}
         />
-      {this.state.data.map((value,index)=>{
-          return(
-              <Text>{value.label},{index}</Text>
-          )
-      })}
+
+        <View style={styles.buttonView}>
+          <Button style={{ backgroundColor: 'lightblue'}} onPress={this.addChoreDialogPopup}>
+            <Text style={{padding: 10}}>ADD CHORE</Text>
+          </Button>
+        </View>
+
+        <Dialog.Container visible={this.state.isAddChorePopupVisible}>
+          <Dialog.Title>Add Chore</Dialog.Title>
+          <Dialog.Button label="Cancel" onPress={this.cancelAddingChore}/>
+          <Dialog.Description>Enter the name of the chore you would like to add</Dialog.Description>
+          <Dialog.Input placeholder="Chore Name" onSubmitEditing={(newChore) => this.addChore(newChore)}></Dialog.Input>
+        </Dialog.Container>
+
       </View>
+
+
     );
   }
 }
@@ -79,6 +106,17 @@ const styles = StyleSheet.create({
       flex:.10,
       justifyContent : 'center',
       alignItems: 'center'
+  },
+  separator: {
+    marginVertical: 8,
+    borderBottomColor: 'black',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  buttonView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignSelf: 'flex-end',
+    padding: 10
   },
 })
 
