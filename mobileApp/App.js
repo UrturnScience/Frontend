@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Preferences from './components/preferences'
 import SettingsPage from './components/SettingsPage'
 import firebase from 'firebase'
+import Dialog from "react-native-dialog";
 
 
 const Stack = createStackNavigator();
@@ -134,6 +135,5 @@ const styles = StyleSheet.create({
     flex:1,
     backgroundColor:'#fff',
     justifyContent:'center',
-    padding:10
   }
 });
