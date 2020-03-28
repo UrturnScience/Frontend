@@ -16,13 +16,6 @@ import Dialog from "react-native-dialog";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// function HomeScreen() {
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//       <Text>Home!</Text>
-//     </View>
-//   );
-// }
 
 function messagingScreen() {
   return (
