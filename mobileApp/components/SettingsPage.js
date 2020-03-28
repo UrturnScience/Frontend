@@ -11,10 +11,13 @@ class SettingsPage extends Component{
 
     render() {
         return (
+            
             <View style={styles.container}>
+                
                 <TouchableOpacity style={styles.buttonContainer} onPress={this.logout}>
                      <Text style={styles.buttonText}>Logout</Text>
                  </TouchableOpacity>
+            
             </View>
         )
     }

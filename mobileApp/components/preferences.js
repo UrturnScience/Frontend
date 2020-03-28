@@ -99,10 +99,8 @@ class Preferences extends Component {
 
   render() {
     
-    
-    
     return (
-      
+
       <View style={{ marginTop:40, flex: 1 }}>
           <View style={styles.parentStyle}>
             <Text style={{fontWeight:'bold',fontSize:40}}>Preferences</Text>
@@ -116,7 +114,7 @@ class Preferences extends Component {
           data={this.state.chores.map((choreTitle, index) => ({
             key: `item-${choreTitle}`,
             label: choreTitle,
-            backgroundColor: `grey`
+            backgroundColor: `#D4D4D4`
           }))}
           renderItem={this.renderItem}
           keyExtractor={(item, index) => `draggable-item-${item.key}`}
@@ -161,11 +159,10 @@ class Preferences extends Component {
 }
 
 const styles = StyleSheet.create({
-  parentStyle:
-  {
-      flex:.10,
-      justifyContent : 'center',
-      alignItems: 'center'
+  parentStyle:{
+    flex:.10,
+    justifyContent : 'center',
+    alignItems: 'center'
   },
   separator: {
     marginVertical: 8,
@@ -175,7 +172,6 @@ const styles = StyleSheet.create({
   buttonsView: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignSelf: 'flex-end',
     padding: 10
   },
   helperText: {

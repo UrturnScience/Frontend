@@ -19,7 +19,7 @@
     "expo-google-app-auth": "^8.0.1",
     "fb-watchman": "^2.0.1",
     "firebase": "^7.11.0",
-    "native-base": "2.13.8",
+    "native-base": "^2.13.8",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
