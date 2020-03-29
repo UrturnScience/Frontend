@@ -3,6 +3,14 @@ import {Alert, TouchableOpacity,ImageBackground, StyleSheet,View,Text, Image } f
 import { Button,Item} from 'native-base';
 import DraggableFlatList from "react-native-draggable-flatlist";
 import Dialog from 'react-native-dialog';
+import * as firebase from 'firebase';
+
+// Required for connecting to backend
+import { BACKEND_URL, TEST_ROOM } from 'react-native-dotenv';
+import Axios from 'axios';
+import DbUserContext from '../context';
+
+
 
 // function to add a horizontal black line on the screen to separate areas of the app
 function Separator() {
@@ -18,32 +26,34 @@ class Preferences extends Component {
     
     //the initial state that the screen is loaded with
     this.state = {
-      // chores: [], //This is where we would call the backend to fill this array with strings for chore titles
-      // chores: ["Dishes", "Vaccum", "Take out Trash"] <--- An example hard-coded array for chores
-      chores: ["Dishes", "Vaccum", "Take out Trash"],
-      isAddChorePopupVisible: false,
+      preferences: null,
       isSubmitPrefsPopupVisible: false,
     }
-
-    this.addChore = this.addChore.bind(this)
   }
 
-  // adds a new chore to the list on the screen and closes the popup window
-  addChore(choreValue){
-    this.setState(prevState => ({
-      chores: [...prevState.chores, choreValue]
-    }))
-    this.setState({isAddChorePopupVisible: false})
+  static contextType = DbUserContext;
+
+  componentDidMount() {
+    this._preferenceRequest = Axios.get(`${BACKEND_URL}/preference/user/${this.context.user._id}`).then(res => {
+      let choreCalls = res.data.preferences.map(p => Axios.get(`${BACKEND_URL}/chore/${p.choreId}`));
+      Promise.all(choreCalls).then(results => {
+        for (let i = 0; i < results.length; i++) {
+          res.data.preferences[i].chore = results[i].data.chore;
+        }
+        res.data.preferences.sort((a, b) => (a.weight < b.weight) ? -1 : 1);
+        this.setState({
+          preferences: res.data.preferences
+        });
+        this._preferenceRequest = null;
+      })
+    }
+    )
   }
 
-  // shows the popup window to add a new chore
-  showAddChoreDialogPopup = () => {
-    this.setState({ isAddChorePopupVisible: true});
-  }
-
-  // hides the popup window to add a new chore
-  hideAddChoreDialogPopup = () => {
-    this.setState({ isAddChorePopupVisible: false});
+  componentWillUnmount() {
+    if (this._asyncRequest) {
+      this._asyncRequest.cancel();
+    }
   }
 
   // shows the popup window to submit preferences
@@ -57,17 +67,34 @@ class Preferences extends Component {
   }
 
   // updates the order of the chores
-  updateChoreRanking = (data) => {
-    updatedChoreArray = []
-    for (let choreObject of data) {
-      updatedChoreArray.push(choreObject["label"])
+  updatePreferenceRanking = (listComponents) => {
+    let newPreferences = [];
+    for (let i = 0; i < listComponents.length; i++) {
+      for (let j = 0; j < this.state.preferences.length; j++) {
+        if (!this.state.preferences[j].chore.name.localeCompare(listComponents[i]["label"])) {
+          newPreferences.push(this.state.preferences[j]);
+        }
+      }
     }
-    this.setState(({chores: updatedChoreArray}))
+    this.setState({
+      preferences: newPreferences
+    });
   }
 
   // sends order of chore list to the backend to set user chore preferences
-  submitChorePrefs = () => {
-    // fill in function to make backend POST call
+  submitPreferences = () => {
+    Axios.put(`${BACKEND_URL}/preference/update/${this.context.user._id}`, {
+      preferenceIds: this.state.preferences.map(c => c._id)
+    }).then(
+      res => {
+        console.log(res);
+        this.setState({isSubmitPrefsPopupVisible: false})
+      }
+    ).catch(
+      e => {
+        console.error(e);
+      }
+    )
     this.setState({isSubmitPrefsPopupVisible: false})
   }
 
@@ -98,63 +125,57 @@ class Preferences extends Component {
   };
 
   render() {
-    
-    return (
-
-      <View style={{ marginTop:40, flex: 1 }}>
-          <View style={styles.parentStyle}>
-            <Text style={{fontWeight:'bold',fontSize:40}}>Preferences</Text>
-          </View>
-
+    console.log(this.state);
+    if (this.state.preferences === null) {
+      return (
+        <Text>Loading preferences...</Text>
+      )
+    } else {
+      return (
+        <View style={{ marginTop:40, flex: 1 }}>
+            <View style={styles.parentStyle}>
+              <Text style={{fontWeight:'bold',fontSize:40}}>Preferences</Text>
+            </View>
+  
+            <Separator />
+  
+          <Text style={{fontSize: 20, fontStyle: "italic", padding: 5, fontWeight: "500"}}>Favorite Chore</Text>
+  
+          <DraggableFlatList
+            data={this.state.preferences.map(preference => ({
+              key: `item-${preference.chore.name}`,
+              label: preference.chore.name,
+              backgroundColor: `#D4D4D4`
+            }))}
+            renderItem={this.renderItem}
+            keyExtractor={(item, index) => `draggable-item-${item.key}`}
+            onDragEnd={({data}) => this.updatePreferenceRanking(data)}
+            autoscrollThreshold={50}
+          />
+  
+          <Text style={{fontSize: 20, fontStyle: "italic", padding: 5, fontWeight: "500"}}>Least Favorite Chore</Text>
+  
           <Separator />
-
-        <Text style={{fontSize: 20, fontStyle: "italic", padding: 5, fontWeight: "500"}}>Favorite Chore</Text>
-
-        <DraggableFlatList
-          data={this.state.chores.map((choreTitle, index) => ({
-            key: `item-${choreTitle}`,
-            label: choreTitle,
-            backgroundColor: `#D4D4D4`
-          }))}
-          renderItem={this.renderItem}
-          keyExtractor={(item, index) => `draggable-item-${item.key}`}
-          onDragEnd={({data}) => this.updateChoreRanking(data)}
-          autoscrollThreshold={50}
-        />
-
-        <Text style={{fontSize: 20, fontStyle: "italic", padding: 5, fontWeight: "500"}}>Least Favorite Chore</Text>
-
-        <Separator />
-        <View style={{padding: 10}}>
-          <Text style={styles.helperText}>press and hold a chore to drag and drop it in the list</Text>
+          <View style={{padding: 10}}>
+            <Text style={styles.helperText}>Press and hold a chore to drag and drop it in the list</Text>
+          </View>
+  
+          <View style={styles.buttonsView}>  
+            <Button style={styles.button} onPress={this.showSubmitPrefsPopup}>
+              <Text style={{padding: 10}}>SUBMIT</Text>
+            </Button>
+          </View>
+  
+          <Dialog.Container visible={this.state.isSubmitPrefsPopupVisible}>
+            <Dialog.Title>Submit Preferences</Dialog.Title>
+            <Dialog.Description>Are you sure you want to submit your chore preferences?</Dialog.Description>
+            <Dialog.Button label="Cancel" color="red" onPress={this.hideSubmitPrefsPopup}/>
+            <Dialog.Button label="Submit" onPress={this.submitPreferences}/>
+          </Dialog.Container>
+  
         </View>
-
-        <View style={styles.buttonsView}>
-          <Button style={{ backgroundColor: 'lightblue'}} onPress={this.showAddChoreDialogPopup}>
-            <Text style={{padding: 10}}>ADD CHORE</Text>
-          </Button>
-
-          <Button style={{ backgroundColor: '#90EE90'}} onPress={this.showSubmitPrefsPopup}>
-            <Text style={{padding: 10}}>SUBMIT</Text>
-          </Button>
-        </View>
-
-        <Dialog.Container visible={this.state.isAddChorePopupVisible}>
-          <Dialog.Title>Add Chore</Dialog.Title>
-          <Dialog.Button label="Cancel" onPress={this.hideAddChoreDialogPopup}/>
-          <Dialog.Description>Enter the name of the chore you would like to add</Dialog.Description>
-          <Dialog.Input placeholder="Chore Name" onSubmitEditing={(newChore) => this.addChore(newChore["nativeEvent"]["text"])}></Dialog.Input>
-        </Dialog.Container>
-
-        <Dialog.Container visible={this.state.isSubmitPrefsPopupVisible}>
-          <Dialog.Title>Submit Preferences</Dialog.Title>
-          <Dialog.Description>Are you sure you want to submit your chore preferences?</Dialog.Description>
-          <Dialog.Button label="Cancel" color="red" onPress={this.hideSubmitPrefsPopup}/>
-          <Dialog.Button label="Submit" onPress={this.submitChorePrefs}/>
-        </Dialog.Container>
-
-      </View>
-    );
+      );
+    }
   }
 }
 
@@ -171,8 +192,13 @@ const styles = StyleSheet.create({
   },
   buttonsView: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10
+    justifyContent: 'center',
+    padding: 10,
+  },
+  button: {
+    backgroundColor: '#90EE90',
+    width: "50%",
+    justifyContent: "center"
   },
   helperText: {
     fontSize: 15,
