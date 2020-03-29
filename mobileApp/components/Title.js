@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import {Alert, ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
 import { Button,Item } from 'native-base';
 import Email from './emailAuth'
@@ -7,7 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase'
 import * as Facebook from 'expo-facebook';
-import {firebaseConfig} from '../firebase.js' 
+import firebaseConfig from '../firebase.json' 
 
 if(!firebase.apps.length){
   firebase.initializeApp(firebaseConfig)
