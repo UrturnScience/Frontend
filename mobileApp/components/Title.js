@@ -7,11 +7,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase'
 import * as Facebook from 'expo-facebook';
-import firebaseConfig from '../firebase.json' 
-
-if(!firebase.apps.length){
-  firebase.initializeApp(firebaseConfig)
-}
 
 const styles = StyleSheet.create({
   parentView:{
@@ -177,8 +172,8 @@ class Title extends Component{
           <View style={styles.topView}>
             <View style={styles.logoView}>
                 <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.png')}></Image>
-                <Text style={{padding:5,fontSize:30,fontWeight:'bold',fontFamily:'Arial'}} >Urturn </Text>
-                <Text style={{fontSize:20,fontFamily:'Arial'}} >Improving Shared Living</Text>
+                <Text style={{padding:5,fontSize:30,fontWeight:'bold'}} >Urturn </Text>
+                <Text style={{fontSize:20}} >Improving Shared Living</Text>
             </View>
                 
                 

@@ -1,23 +1,24 @@
 import 'react-native-gesture-handler';
-import React, { createContext, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { NavigationContainer, StackActions } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { navigationRef } from './RootNavigation';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Title from './components/Title';
 import { Ionicons } from '@expo/vector-icons';
 import Preferences from './components/preferences'
+import RoomJoin from './components/RoomJoin';
 import SettingsPage from './components/SettingsPage';
 import HomeScreen from './components/HomeScreen';
 import * as firebase from "firebase";
 import firebaseConfig from './firebase.json';
-import Dialog from "react-native-dialog";
 
-import { BACKEND_URL, TEST_ROOM } from 'react-native-dotenv';
+import { BACKEND_URL } from 'react-native-dotenv';
 import Axios from 'axios';
-import DbUserContext from './context';
+import { DbContext } from './context';
+import { TextInput } from 'react-native-gesture-handler';
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
@@ -37,9 +38,27 @@ export default function App() {
 
   // Set an initializing state until Firebase can connect
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
-  const [dbUser, setDbUser] = useState();
+  const [user, setUser] = useState();     // Firebase user
+  const [dbUser, setDbUser] = useState(); // Db user
+  const [dbRoom, setDbRoom] = useState();
   const [errorNotif, setErrorNotif] = useState();
+
+  async function loadContexts() {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const config = { headers: { Authorization: token } };
+
+    // Get the User info stored in DB
+    const res1 = await Axios.post(`${BACKEND_URL}/user/login`, null, config);
+    setDbUser(res1.data.user);
+
+    // Get room information stored in the DB
+    const res2 = await Axios.get(`${BACKEND_URL}/roomuser/user/${res1.data.user._id}`, config);
+    if (res2.data.roomUsers == null) {
+      console.log("USER IS NOT IN ROOM BITCH");
+    } else {
+      setDbRoom(res2.data.roomUsers.roomId);
+    }
+  }
 
   async function makeLoginRequest() {
     if (!firebase.auth().currentUser) {
@@ -47,13 +66,11 @@ export default function App() {
     }
 
     // create account with our backend
-    const token = await firebase.auth().currentUser.getIdToken();
-    const config = { headers: { Authorization: token } };
-    const res = await Axios.post(`${BACKEND_URL}/user/login`, null, config);
-
-    console.log("SETTING DB USER");
-    setDbUser(res.data);
-    console.log(dbUser);
+    try {
+      await loadContexts();
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   // Handle user state changes
@@ -61,42 +78,6 @@ export default function App() {
     setUser(user);
     makeLoginRequest();
     if (initializing) setInitializing(false);
-  }
-
-  // Handle creating new account
-  async function onCreateAccount(email, password) {
-    try {
-      await firebase.auth().createUserWithEmailAndPassword(email, password);
-    } catch (error) {
-      setErrorNotif(error.message);
-    }
-  }
-
-  // Handle login attempt
-  async function onLogin(email, password) {
-    try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-    } catch (error) {
-      setErrorNotif(error.message);
-    }
-  }
-
-  // Logging out
-  function onLogout() {
-    firebase.auth().signOut();
-  }
-
-  // Make an authenticated request
-  async function authenticatedRequest() {
-    const token = await firebase.auth().currentUser.getIdToken();
-    const config = { headers: { Authorization: token } };
-
-    try {
-      const res = await Axios.get(`${BACKEND_URL}/authPing`, config);
-      console.log(res.data);
-    } catch (err) {
-      console.log(err);
-    }
   }
 
   useEffect(() => {
@@ -111,11 +92,21 @@ export default function App() {
     return (
       <Title></Title>
     );
+  } else if (user && !dbUser && !dbRoom) {
+    return (
+      <Text>No User in the database!</Text>
+    );
+  } else if (user && dbUser && !dbRoom) {
+    return (
+      <DbContext.Provider value = {{user: dbUser, room: ""}}>
+        <RoomJoin reloadContext={loadContexts}></RoomJoin>
+      </DbContext.Provider>
+    );
   }
 
   return (
-    <DbUserContext.Provider value = {dbUser}>
-      <NavigationContainer>
+    <DbContext.Provider value = {{user: dbUser, room: dbRoom}}>
+      <NavigationContainer ref={navigationRef}>
         <Tab.Navigator
           screenOptions={({route})=> ({
             tabBarIcon:({focused,color,size})=>{
@@ -147,7 +138,7 @@ export default function App() {
           
         </Tab.Navigator>
       </NavigationContainer>
-    </DbUserContext.Provider>
+    </DbContext.Provider>
   );
   
 }

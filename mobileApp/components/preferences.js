@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
-import {Alert, TouchableOpacity,ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
-import { Button,Item} from 'native-base';
+import {TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Button } from 'native-base';
 import DraggableFlatList from "react-native-draggable-flatlist";
 import Dialog from 'react-native-dialog';
-import * as firebase from 'firebase';
 
 // Required for connecting to backend
-import { BACKEND_URL, TEST_ROOM } from 'react-native-dotenv';
+import { BACKEND_URL } from 'react-native-dotenv';
 import Axios from 'axios';
-import DbUserContext from '../context';
-
+import { DbContext } from '../context';
 
 
 // function to add a horizontal black line on the screen to separate areas of the app
@@ -23,6 +22,8 @@ class Preferences extends Component {
   constructor(props){
     
     super(props);
+
+    this._preferenceRequest = null
     
     //the initial state that the screen is loaded with
     this.state = {
@@ -31,11 +32,14 @@ class Preferences extends Component {
     }
   }
 
-  static contextType = DbUserContext;
+  static contextType = DbContext;
 
-  componentDidMount() {
-    this._preferenceRequest = Axios.get(`${BACKEND_URL}/preference/user/${this.context.user._id}`).then(res => {
+  getPreferences(user) {
+    console.log("PREFERENCE_REQUEST before:");
+    console.log(this._preferenceRequest);
+    this._preferenceRequest = Axios.get(`${BACKEND_URL}/preference/user/${user._id}`).then(res => {
       let choreCalls = res.data.preferences.map(p => Axios.get(`${BACKEND_URL}/chore/${p.choreId}`));
+
       Promise.all(choreCalls).then(results => {
         for (let i = 0; i < results.length; i++) {
           res.data.preferences[i].chore = results[i].data.chore;
@@ -44,15 +48,20 @@ class Preferences extends Component {
         this.setState({
           preferences: res.data.preferences
         });
+        console.log("PREFERENCE_REQUEST after:");
+        console.log(this._preferenceRequest);
         this._preferenceRequest = null;
-      })
-    }
-    )
+      });
+    });
+  }
+
+  componentDidMount() {
+    this.getPreferences(this.context.user);
   }
 
   componentWillUnmount() {
-    if (this._asyncRequest) {
-      this._asyncRequest.cancel();
+    if (this._preferenceRequest) {
+      this._preferenceRequest.cancel();
     }
   }
 
@@ -87,7 +96,6 @@ class Preferences extends Component {
       preferenceIds: this.state.preferences.map(c => c._id)
     }).then(
       res => {
-        console.log(res);
         this.setState({isSubmitPrefsPopupVisible: false})
       }
     ).catch(
@@ -125,10 +133,11 @@ class Preferences extends Component {
   };
 
   render() {
-    console.log(this.state);
     if (this.state.preferences === null) {
       return (
-        <Text>Loading preferences...</Text>
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+          <Text>Loading preferences...</Text>
+        </View>
       )
     } else {
       return (
@@ -160,8 +169,18 @@ class Preferences extends Component {
             <Text style={styles.helperText}>Press and hold a chore to drag and drop it in the list</Text>
           </View>
   
-          <View style={styles.buttonsView}>  
-            <Button style={styles.button} onPress={this.showSubmitPrefsPopup}>
+          <View style={styles.buttonsView}> 
+            <Button
+              style={[styles.refreshButton, styles.active ]}
+              onPress={() => {
+                this.getPreferences(this.context.user);
+                console.log();
+              }}
+              // disabled={this._preferenceRequest == null}
+            >
+              <Ionicons name="ios-refresh" size={25} color="grey" />
+            </Button>
+            <Button style={styles.submitButton} onPress={this.showSubmitPrefsPopup}>
               <Text style={{padding: 10}}>SUBMIT</Text>
             </Button>
           </View>
@@ -192,13 +211,19 @@ const styles = StyleSheet.create({
   },
   buttonsView: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     padding: 10,
   },
-  button: {
+  submitButton: {
     backgroundColor: '#90EE90',
-    width: "50%",
+    width: "30%",
     justifyContent: "center"
+  },
+  refreshButton: {
+    backgroundColor: 'lightblue',
+    width: "25%",
+    justifyContent: "center",
+    padding: 10
   },
   helperText: {
     fontSize: 15,
