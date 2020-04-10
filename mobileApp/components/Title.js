@@ -198,7 +198,8 @@ class Title extends Component{
           </View>
           
           <View style = {styles.bottomView}>
-              <Email/>
+              <Email reloadContext={this.props.reloadContext}/>
+              {/* <Email/> */}
           </View>
 
       </ImageBackground>
