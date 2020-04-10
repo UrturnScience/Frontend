@@ -21,6 +21,13 @@ class RoomJoin extends Component{
 
     componentDidMount() {
         console.log("Setting state in RoomJoin from context...");
+        if (this.context.user._id == null) {
+            console.log("NO USER IN ROOM JOIN, reloading context");
+            this.props.reloadContext.user().then(() => {
+                console.log("User set now?");
+            });
+        }
+
         this.setState({
             userId: this.context.user._id
         });
@@ -32,9 +39,15 @@ class RoomJoin extends Component{
             alert("Please enter a room code");
             return;
         }
-        // console.log(`Join room ${roomId} for user ${userId}`);
+        console.log(`Join room ${roomId} for user ${userId} with URL: ${BACKEND_URL}/roomuser/add/${roomId}/${userId}`);
         Axios.post(`${BACKEND_URL}/roomuser/add/${roomId}/${userId}`).then(res => {
-            this.props.reloadContext();
+            console.log("Successfully joined room?");
+            this.props.reloadContext.all().then(() => {
+                console.log("Reloaded room context?: " + this.context.room);
+            }).catch((e) => {
+                console.log("ERROR:");
+                console.log(e);
+            });
         }).catch(e => {
             alert("Room code doesn't exist");
             this.textInput.clear();
@@ -44,6 +57,7 @@ class RoomJoin extends Component{
     async createRoom(userId) {
         console.log(`Create room and add user ${userId}`);
         try {
+            console.log(`Calling: ${BACKEND_URL}/room/create`);
             let res = await Axios.post(`${BACKEND_URL}/room/create`);
             console.log("New room id: " + res.data.room._id);
             this.joinRoom(res.data.room._id, userId);

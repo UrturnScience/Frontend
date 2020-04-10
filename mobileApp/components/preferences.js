@@ -35,8 +35,6 @@ class Preferences extends Component {
   static contextType = DbContext;
 
   getPreferences(user) {
-    console.log("PREFERENCE_REQUEST before:");
-    console.log(this._preferenceRequest);
     this._preferenceRequest = Axios.get(`${BACKEND_URL}/preference/user/${user._id}`).then(res => {
       let choreCalls = res.data.preferences.map(p => Axios.get(`${BACKEND_URL}/chore/${p.choreId}`));
 
@@ -48,8 +46,6 @@ class Preferences extends Component {
         this.setState({
           preferences: res.data.preferences
         });
-        console.log("PREFERENCE_REQUEST after:");
-        console.log(this._preferenceRequest);
         this._preferenceRequest = null;
       });
     });

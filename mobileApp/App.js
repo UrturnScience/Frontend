@@ -46,17 +46,35 @@ export default function App() {
   async function loadContexts() {
     const token = await firebase.auth().currentUser.getIdToken();
     const config = { headers: { Authorization: token } };
+  
+    let loadedDbUser = await loadUserContext(config);
+    console.log(loadedDbUser);
+    await loadRoomContext(config, loadedDbUser._id);
+  }
 
-    // Get the User info stored in DB
+  async function loadUserContext(config = null) {
+    if (config == null) {
+      const token = await firebase.auth().currentUser.getIdToken();
+      config = { headers: { Authorization: token } };
+    }
+
     const res1 = await Axios.post(`${BACKEND_URL}/user/login`, null, config);
     setDbUser(res1.data.user);
+    return res1.data.user
+  }
 
-    // Get room information stored in the DB
-    const res2 = await Axios.get(`${BACKEND_URL}/roomuser/user/${res1.data.user._id}`, config);
-    if (res2.data.roomUsers == null) {
-      console.log("USER IS NOT IN ROOM BITCH");
+  async function loadRoomContext(config = null, userId) {
+    if (config == null) {
+      const token = await firebase.auth().currentUser.getIdToken();
+      config = { headers: { Authorization: token } };
+    }
+
+    const res2 = await Axios.get(`${BACKEND_URL}/roomuser/user/${userId}`, config);
+    if (res2.data.roomUser == null) {
+      console.log("USER IS NOT IN ROOM");
+      setDbRoom("");
     } else {
-      setDbRoom(res2.data.roomUsers.roomId);
+      setDbRoom(res2.data.roomUser.roomId);
     }
   }
 
@@ -90,7 +108,7 @@ export default function App() {
   
   if (!user) {
     return (
-      <Title></Title>
+      <Title loadContext={loadContexts}></Title>
     );
   } else if (user && !dbUser && !dbRoom) {
     return (
@@ -99,13 +117,13 @@ export default function App() {
   } else if (user && dbUser && !dbRoom) {
     return (
       <DbContext.Provider value = {{user: dbUser, room: ""}}>
-        <RoomJoin reloadContext={loadContexts}></RoomJoin>
+        <RoomJoin reloadContext={{user: loadUserContext, room: loadRoomContext, all: loadContexts}}></RoomJoin>
       </DbContext.Provider>
     );
   }
 
   return (
-    <DbContext.Provider value = {{user: dbUser, room: dbRoom}}>
+    <DbContext.Provider value = {{ user: dbUser, room: dbRoom }}>
       <NavigationContainer ref={navigationRef}>
         <Tab.Navigator
           screenOptions={({route})=> ({

@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
 import {View, TouchableOpacity, StyleSheet, Text} from 'react-native';
+import { DbContext } from '../context';
 
-class SettingsPage extends Component{
+class SettingsPage extends Component {
 
-    logout = () => {
-        firebase.auth().signOut()
-        console.log('\nLogout Successful\n')
+    static contextType = DbContext;
+
+
+    logout = async () => {
+        firebase.auth().signOut().then(() => {
+            console.log('\nLogout Successful\n');
+        });
     }
 
     render() {

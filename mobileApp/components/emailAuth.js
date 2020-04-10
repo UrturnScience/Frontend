@@ -88,7 +88,7 @@ export default class emailAuth extends Component {
             
             onChangeText = {(email) => this.setState({email})}
             autoCorrect = {false}
-            autoCapitailize = "none"
+            autoCapitalize = "none"
           />
           </Item>
 
@@ -97,7 +97,7 @@ export default class emailAuth extends Component {
             <Input
             secureTextEntry = {true}
             autoCorrect = {false}
-            autoCapitailize = "none"
+            autoCapitalize = "none"
             onChangeText = {(password) => this.setState({password})}
           />
           </Item>
