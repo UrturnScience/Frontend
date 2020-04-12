@@ -12,7 +12,7 @@ import SettingsPage from './components/SettingsPage';
 import HomeScreen from './components/HomeScreen';
 import * as firebase from "firebase";
 import firebaseConfig from './firebase.json';
-
+import Chat from './components/chat';
 import { BACKEND_URL } from 'react-native-dotenv';
 import Axios from 'axios';
 import { DbContext } from './context';
@@ -151,7 +151,7 @@ export default function App() {
 
           <Tab.Screen name = "Home" component ={HomeScreen}/>
           <Tab.Screen name = "Preferences" component ={Preferences}/>
-          <Tab.Screen name = "Messaging" component ={messagingScreen}/>
+          <Tab.Screen name = "Messaging" component ={Chat}/>
           <Tab.Screen name = "Settings" component ={SettingsPage}/>
           
         </Tab.Navigator>
