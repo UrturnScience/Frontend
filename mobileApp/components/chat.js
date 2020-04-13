@@ -12,7 +12,7 @@ class Chat extends React.Component {
       messages: [
         {
           _id: 1,
-          text: 'sup bitch, i\'m roomie rhino',
+          text: 'hey whats up, i\'m roomie rhino',
           createdAt: new Date(),
           user: {
             _id: 2,
