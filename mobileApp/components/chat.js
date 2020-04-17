@@ -46,17 +46,7 @@ class Chat extends React.Component {
         messages: resMessages.map(parseMsg).reverse()
       });
 
-      if(websocket.getWebSocket())
-      {
-        websocket.getWebSocket().onmessage = msg =>{
-          const data = parseMsg(JSON.parse(msg.data));
-          console.log("MESSAGE:");
-          console.log(data);
-          this.setState(previousState => ({
-            messages: GiftedChat.append(this.state.messages, data)
-          }));
-        }
-      }
+      
     }).catch(e => {
       console.log(e);
     });
