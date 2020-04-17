@@ -143,20 +143,23 @@ export default function App() {
   function onSend(msg) {
     websocket.getWebSocket().send(msg);
   }
-  if(websocket.getWebSocket())
-  {
-    websocket.getWebSocket().onmessage = e =>{
-      const data = JSON.parse(e.data);
-      if(messages){
-        setMessages([...messages, data]);
 
-      }
-      else
-      {
-        setMessages([data]);
-      }
-    }
-  }
+  // if(websocket.getWebSocket())
+  // {
+  //   websocket.getWebSocket().onmessage = e =>{
+  //     const data = JSON.parse(e.data);
+  //     if(messages){
+  //       setMessages([...messages, data]);
+
+  //     }
+  //     else
+  //     {
+  //       setMessages([data]);
+  //     }
+  //   }
+  // }
+
+
 function chatTab()
 {
   return(
