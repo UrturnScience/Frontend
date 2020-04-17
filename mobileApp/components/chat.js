@@ -19,12 +19,19 @@ const parseMsg = msg => {
   return {
     _id: msg._id,
     text: msg.data,
-    createdAt: Date.now(),
+    createdAt: msg.createdAt || Date.now(),
+    sent: true,
     user:{
       _id: msg.senderId,
       name: msg.senderId,
     }
   }
+}
+
+const formatMessage = msg => {
+  msg.pending = true;
+  msg.createdAt = Date.parse(msg.createdAt);
+  return msg;
 }
 
 class Chat extends React.Component {
@@ -46,18 +53,38 @@ class Chat extends React.Component {
         messages: resMessages.map(parseMsg).reverse()
       });
 
-      
+      if(websocket.getWebSocket()) {
+        websocket.getWebSocket().onmessage = msg =>{
+          const data = parseMsg(JSON.parse(msg.data));
+
+          if (data.user._id == this.context.user._id) {
+            let delivered = this.state.messages.find(m => m.pending == true && m._id === data._id);
+            delete delivered['pending'];
+            delivered.sent = true;
+          } else {
+            this.setState(previousState => ({
+              messages: GiftedChat.append(this.state.messages, data)
+            }));
+          }
+        }
+      }
     }).catch(e => {
       console.log(e);
     });
   }
 
   onSend(messages) {
+    messages = messages.map(formatMessage);
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }));
 
-    websocket.getWebSocket().send(messages[0].text);
+    let data = {
+      message: messages[0].text,
+      giftedId: messages[0]._id,
+    };
+
+    websocket.getWebSocket().send(JSON.stringify(data));
   }
 
   render() {
