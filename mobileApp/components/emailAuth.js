@@ -79,13 +79,12 @@ export default class emailAuth extends Component {
 
   render(){
     return (
-      <View style={styles.container}> 
+      <View> 
         <Form>
           
           <Item floatingLabel>
             <Label style={{color:'black'}}>Email:</Label>
             <Input
-            
             onChangeText = {(email) => this.setState({email})}
             autoCorrect = {false}
             autoCapitalize = "none"
@@ -101,22 +100,24 @@ export default class emailAuth extends Component {
             onChangeText = {(password) => this.setState({password})}
           />
           </Item>
-          
-          <Button style = {{marginTop:10}}
-          full rounded success
-          onPress = {()=> this.login(this.state.email,this.state.password)}>
 
-            <Text style={{color:'white'}}> Login</Text>
-          
-          </Button>
+          <View style={styles.buttonContainer}>
 
-          <Button style = {{marginTop:10}}
-          full rounded warning
-          onPress = {()=> this.signup(this.state.email,this.state.password)}>
+            <Button style = {styles.signupButton}
+            onPress = {()=> this.signup(this.state.email,this.state.password)}>
 
-            <Text style= {{color: 'black'}}> Sign Up</Text>
+              <Text style= {{color: 'white', fontSize: 16}}>Sign Up</Text>
+            
+            </Button>
           
-          </Button>
+            <Button style = {styles.loginButton}
+            onPress = {()=> this.login(this.state.email,this.state.password)}>
+
+              <Text style={{color:'white', fontSize: 16}}>Login</Text>
+            
+            </Button>
+
+          </View>
         </Form>
       </View>
     );
@@ -124,15 +125,23 @@ export default class emailAuth extends Component {
 }
  
 const styles = StyleSheet.create({
-  parentView:{
-    flex:1,
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 35,
   },
-  container:
-  {
-    flex:1,
-    justifyContent:'center',
-    padding:10,
-    marginBottom:200,
-    marginTop:30
+  loginButton: {
+    backgroundColor: "tomato",
+    width: "40%",
+    textAlign: "center",
+    justifyContent: "center",
+  },
+  signupButton: {
+    backgroundColor: "#3284f7",
+    width: "40%",
+    textAlign: "center",
+    justifyContent: "center",
   }
 });

@@ -13,36 +13,34 @@ const styles = StyleSheet.create({
     flex:1,
     resizeMode: 'contain',
     width:'100%',
-    height:'100%'
+    height:'100%',
+    justifyContent: "center",
+  },
+  childView: {
+    padding: 20,
+    margin: 15,
+    borderRadius: 5,
+    backgroundColor: "white",
+    justifyContent: "center",
+    shadowColor: 'darkgrey',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 2
   },
   topView:{
-    flex:.5,
     justifyContent:'center',
     flexDirection:"column",
     alignItems:'center',
+    paddingTop: 15,
   },
   logoView:{
-    flex: .3,
-    marginTop:50,
     justifyContent:'center',
     alignItems: 'center',
-    height:50,
-    marginBottom:20
-  },
-  socialView:{
-    flex:.5,
-    justifyContent:'center',
-    padding:10,
-    width:400,
-    alignItems:'center'
   },
   bottomView:{
-    flex:.5,
-    justifyContent:'center',
-  },
-  botTextView:{
-    flex:.3, 
-    justifyContent: 'center'
+    justifyContent:'flex-start',
+    paddingBottom: 10,
   }
 });
 
@@ -169,39 +167,39 @@ class Title extends Component{
   {
     return (
       <ImageBackground style={styles.parentView} source = {require('../assets/room.jpeg')}>
-          <View style={styles.topView}>
-            <View style={styles.logoView}>
-                <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.png')}></Image>
-                <Text style={{padding:5,fontSize:30,fontWeight:'bold'}} >Urturn </Text>
-                <Text style={{fontSize:20}} >Improving Shared Living</Text>
-            </View>
-                
-                
-            <View style= {styles.socialView}>
+          <View style={styles.childView}>
+            <View style={styles.topView}>
+              <View style={styles.logoView}>
+                  <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.png')}></Image>
+                  <Text style={{fontSize:20}} >Improving Shared Living</Text>
+              </View>
+                  
+                  
+              {/* <View style= {styles.socialView}>
+              
+                <Button 
+                full rounded style = {{marginTop:10}} primary
+                onPress={()=>this.loginWithFacebook()}>
+                  <Text style={{color:'white'}}> Facebook</Text>
+                </Button>
             
-              <Button 
-              full rounded style = {{marginTop:10}} primary
-              onPress={()=>this.loginWithFacebook()}>
-                <Text style={{color:'white'}}> Facebook</Text>
-              </Button>
-          
-              <Button 
-              full rounded style = {{marginTop:10}} light
-              onPress={()=>this.signInWithGoogleAsync()}>
-                <Text style={{color:'black'}}> Google</Text>
-              </Button>
-            
-            </View>
-            <Text style = {{marginTop:40,color: 'grey'}}>
-            --------------------------- OR --------------------------
-            </Text>
+                <Button 
+                full rounded style = {{marginTop:10}} light
+                onPress={()=>this.signInWithGoogleAsync()}>
+                  <Text style={{color:'black'}}> Google</Text>
+                </Button>
+              
+              </View>
+              <Text style = {{marginTop:40,color: 'grey'}}>
+              --------------------------- OR --------------------------
+              </Text>
+            </View> */}
           </View>
-          
+            
           <View style = {styles.bottomView}>
               <Email reloadContext={this.props.reloadContext}/>
-              {/* <Email/> */}
           </View>
-
+        </View>
       </ImageBackground>
     )
   }  

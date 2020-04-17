@@ -2,8 +2,8 @@ import * as firebase from "firebase";
 import Axios from "axios";
 import { BACKEND_URL } from 'react-native-dotenv';
 
-const httpUrl = "http://127.0.0.1:3000";
-const wsUrl = "ws://127.0.0.1:3000";
+const httpUrl = `${BACKEND_URL}`;
+const wsUrl = `ws://${BACKEND_URL.substr(7)}`;
 
 export async function getRoomMessages(roomId) {
   const res = await Axios.get(`${httpUrl}/message/room/${roomId}`);

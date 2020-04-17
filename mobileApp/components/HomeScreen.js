@@ -75,7 +75,7 @@ class HomeScreen extends Component {
                     {
                         this.state.choresToDo.map(chore => (
                             <ListItem key={chore.id}>
-                                <CheckBox checked={chore.isChoreCompleted} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, chore.id)}/>
+                                <CheckBox color="#3284f7" checked={chore.isChoreCompleted} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, chore.id)}/>
                                 <Body style={{padding: 10}}>
                                     <Text>{chore.choreTitle}</Text>
                                 </Body>
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         borderBottomColor: 'black',
         borderBottomWidth: StyleSheet.hairlineWidth,
-      },
+    }
 })
 
 export default HomeScreen;
