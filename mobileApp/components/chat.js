@@ -3,87 +3,87 @@ import { StyleSheet, Text, View, RecyclerViewBackedScrollViewComponent } from 'r
 import { GiftedChat,Bubble  } from 'react-native-gifted-chat'
 import React, { useState, useEffect } from "react";
 import Rhino from '../assets/roomierhino.png'
+import { DbContext } from '../context';
+
+// Required for websocket functionality
+import {
+  getRoomMessages,
+  getUserRoom,
+  joinRoom,
+  createAndJoinRoom
+} from "../src/request";
+import * as websocket from "../src/websocket";
 
 
-
+const parseMsg = msg => {
+  return {
+    _id: msg._id,
+    text: msg.data,
+    createdAt: Date.now(),
+    user:{
+      _id: msg.senderId,
+      name: msg.senderId,
+    }
+  }
+}
 
 class Chat extends React.Component {
+  static contextType = DbContext;
+
   constructor(props)
   {
     super(props);
   
-    this.state={
-      messages:[
-     
-      ],
-      userId:"",
-      data: this.props.messages,
-      
+    this.state = {
+      messages:[]
     }
-    this.onSend= this.props.onSend;
-    console.log("this is data:"+JSON.stringify(this.state.data))
-    this.onLoad.bind(this)
-    this.addMsg.bind(this)
-
-  }
-  
-  addMsg(msg)
-  {
-    this.onSend(msg[0].text)
-    console.log("THIS IS MESSAGE"+JSON.stringify(msg))
-    
-    this.setState((previousState)=>{
-      return{
-        messages:GiftedChat.append(previousState.messages,msg)
-      }
-    })
-
-  }
-  render() {
-    
-    return (  
-      
-    <GiftedChat
-        messages={this.state.messages}
-        onSend={(message)=>{
-          this.addMsg(message)
-        }}
-      
- 
-      />
-    )
   }
 
-  onLoad(msg)
-  {
-    const parse ={
-      _id: msg._id,
-      text: msg.data,
-      createdAt: Date.now(),
-      user:{
-        _id: msg.senderId,
-        name: msg.senderId,
-      }
-    }
-    this.setState((previousState)=>
-      {
-        return{
-          messages:GiftedChat.append(previousState.messages,parse)
-        }
-        
-      }) 
-      
-  }
-  
   componentDidMount()
   {
-    console.log("ONCE")
-    this.state.data.map((msg)=>{
-      this.onLoad(msg)
-    })
+    getRoomMessages(this.context.room).then(resMessages => {
+      this.setState({
+        messages: resMessages.map(parseMsg).reverse()
+      });
+
+      if(websocket.getWebSocket())
+      {
+        websocket.getWebSocket().onmessage = msg =>{
+          const data = parseMsg(JSON.parse(msg.data));
+          console.log("MESSAGE:");
+          console.log(data);
+          this.setState(previousState => ({
+            messages: GiftedChat.append(this.state.messages, data)
+          }));
+        }
+      }
+    }).catch(e => {
+      console.log(e);
+    });
   }
-  
-  
+
+  onSend(messages) {
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, messages),
+    }));
+
+    websocket.getWebSocket().send(messages[0].text);
+  }
+
+  render() {
+    return (
+      <View style={{ backgroundColor: "white", flex: 1, paddingTop: 20 }}>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={(message)=>{
+            this.onSend(message)
+          }}
+          user={{
+            _id: this.context.user._id
+          }}
+        />
+      </View>
+    );
+  }
 }
 export default Chat;
-

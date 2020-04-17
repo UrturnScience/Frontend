@@ -30,15 +30,6 @@ import * as websocket from "./src/websocket";
 const Tab = createBottomTabNavigator();
 
 
-function messagingScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Chat here!</Text>
-    </View>
-  );
-}
-
-
 export default function App() {
   if (firebase.apps.length == 0) {
     firebase.initializeApp(firebaseConfig);
@@ -49,7 +40,6 @@ export default function App() {
   const [user, setUser] = useState();     // Firebase user
   const [dbUser, setDbUser] = useState(); // Db user
   const [dbRoom, setDbRoom] = useState();
-  const [messages, setMessages] = useState([]);
   const [errorNotif, setErrorNotif] = useState();
 
   async function loadContexts() {
@@ -76,23 +66,22 @@ export default function App() {
       const token = await firebase.auth().currentUser.getIdToken();
       config = { headers: { Authorization: token } };
     }
-    let resMessages;
+
     const res2 = await Axios.get(`${BACKEND_URL}/roomuser/user/${userId}`, config);
     if (res2.data.roomUser == null) {
       console.log("USER IS NOT IN ROOM");
       setDbRoom("");
-      setMessages();
     } else {
       setDbRoom(res2.data.roomUser.roomId);
-      resMessages = await getRoomMessages(res2.data.roomUser.roomId);
       websocket.connect();
-      if(resMessages)
-      {
-        setMessages(resMessages);
-      }
     }
-    
-    
+  }
+
+  function chatTab()
+  {
+    return(
+      <Chat></Chat>
+    )
   }
  
   async function makeLoginRequest() {
@@ -144,32 +133,6 @@ export default function App() {
     );
 
   }
-  function onSend(msg) {
-    websocket.getWebSocket().send(msg);
-  }
-
-  // if(websocket.getWebSocket())
-  // {
-  //   websocket.getWebSocket().onmessage = e =>{
-  //     const data = JSON.parse(e.data);
-  //     if(messages){
-  //       setMessages([...messages, data]);
-
-  //     }
-  //     else
-  //     {
-  //       setMessages([data]);
-  //     }
-  //   }
-  // }
-
-
-function chatTab()
-{
-  return(
-    <Chat{...{onSend,messages}}></Chat>
-  )
-}
 
   return (
     <DbContext.Provider value = {{ user: dbUser, room: dbRoom }}>
