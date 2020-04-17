@@ -129,7 +129,11 @@ export default function App() {
     );
   } else if (user && !dbUser && !dbRoom) {
     return (
-      <Text>No User in the database!</Text>
+      <View style={{
+        justifyContent: "center",
+      }}>
+        <Text>No User in the database!</Text>
+      </View>
     );
   } else if (user && dbUser && !dbRoom) {
     return (
@@ -183,7 +187,7 @@ function chatTab()
               else if(route.name === 'Settings'){
                 iconName = focused ? 'ios-list-box' : 'ios-list'
               }
-              else if(route.name === 'Preferences'){
+              else if(route.name === 'Chore Draft'){
                 iconName = focused ? 'md-options':'ios-options'
               }
               else if(route.name === 'Messaging'){
@@ -195,7 +199,7 @@ function chatTab()
           tabBarOptions={{activeTintColor: 'tomato', inactiveTintColor:'gray'}}>
 
           <Tab.Screen name = "Home" component ={HomeScreen}/>
-          <Tab.Screen name = "Preferences" component ={Preferences}/>
+          <Tab.Screen name = "Chore Draft" component ={Preferences}/>
           <Tab.Screen name = "Messaging" component ={chatTab}/>
           <Tab.Screen name = "Settings" component ={SettingsPage}/>
           

@@ -105,12 +105,11 @@ const styles = StyleSheet.create({
     },
     buttonText:{
         textAlign:'center',
-        color:'#fff',
-        // fontWeight:'bold',
+        color:'white',
         fontSize: 22,
     },
     buttonContainer:{
-        backgroundColor:'#3B3B98',
+        backgroundColor:'#3284f7',
         padding: 12,
         borderRadius: 8,
         width: "70%",
