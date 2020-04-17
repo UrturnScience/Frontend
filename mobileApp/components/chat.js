@@ -17,7 +17,8 @@ import * as websocket from "../src/websocket";
 
 const parseMsg = msg => {
   return {
-    _id: msg._id,
+    _id: msg.giftedId || msg._id,
+    mongoId: msg._id,
     text: msg.data,
     createdAt: msg.createdAt || Date.now(),
     sent: true,
@@ -58,9 +59,15 @@ class Chat extends React.Component {
           const data = parseMsg(JSON.parse(msg.data));
 
           if (data.user._id == this.context.user._id) {
-            let delivered = this.state.messages.find(m => m.pending == true && m._id === data._id);
-            delete delivered['pending'];
-            delivered.sent = true;
+            this.state.messages.find(m => {
+              if (m.pending == true && m._id === data._id) {
+                m.pending = false;
+                m.sent = true;
+
+                // Used to force a re-render of the chat component to reflect changes (doesn't always work on low latency)
+                this.setState({ state: this.state });
+              }
+            });
           } else {
             this.setState(previousState => ({
               messages: GiftedChat.append(this.state.messages, data)

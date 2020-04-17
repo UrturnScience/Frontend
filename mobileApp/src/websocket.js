@@ -12,10 +12,6 @@ export function connect() {
     //console.log('wserror', e);
   };
 
-  // ws.onmessage = e => {
-  //   console.log("Message received, custom handling not implemented.");
-  // };
-
   ws.onclose = e => {
     ws = null;
     //console.log('wsclose', e);
