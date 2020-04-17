@@ -6,6 +6,7 @@ import Axios from 'axios';
 import { BACKEND_URL } from 'react-native-dotenv';
 import * as firebase from 'firebase';
 
+
 class RoomJoin extends Component{
 
     constructor(props) {
@@ -52,6 +53,8 @@ class RoomJoin extends Component{
             alert("Room code doesn't exist");
             this.textInput.clear();
         });
+
+
     }
 
     async createRoom(userId) {
@@ -89,6 +92,7 @@ class RoomJoin extends Component{
     }
 
 }
+
 
 const styles = StyleSheet.create({
     container: {

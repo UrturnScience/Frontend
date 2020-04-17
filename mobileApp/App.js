@@ -17,6 +17,14 @@ import { BACKEND_URL } from 'react-native-dotenv';
 import Axios from 'axios';
 import { DbContext } from './context';
 import { TextInput } from 'react-native-gesture-handler';
+import {
+  getRoomMessages,
+  getUserRoom,
+  joinRoom,
+  createAndJoinRoom
+} from "./src/request";
+import * as websocket from "./src/websocket";
+ 
 
 // const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,12 +49,13 @@ export default function App() {
   const [user, setUser] = useState();     // Firebase user
   const [dbUser, setDbUser] = useState(); // Db user
   const [dbRoom, setDbRoom] = useState();
+  const [messages, setMessages] = useState([]);
   const [errorNotif, setErrorNotif] = useState();
 
   async function loadContexts() {
     const token = await firebase.auth().currentUser.getIdToken();
     const config = { headers: { Authorization: token } };
-  
+    
     let loadedDbUser = await loadUserContext(config);
     console.log(loadedDbUser);
     await loadRoomContext(config, loadedDbUser._id);
@@ -57,7 +66,6 @@ export default function App() {
       const token = await firebase.auth().currentUser.getIdToken();
       config = { headers: { Authorization: token } };
     }
-
     const res1 = await Axios.post(`${BACKEND_URL}/user/login`, null, config);
     setDbUser(res1.data.user);
     return res1.data.user
@@ -68,16 +76,25 @@ export default function App() {
       const token = await firebase.auth().currentUser.getIdToken();
       config = { headers: { Authorization: token } };
     }
-
+    let resMessages;
     const res2 = await Axios.get(`${BACKEND_URL}/roomuser/user/${userId}`, config);
     if (res2.data.roomUser == null) {
       console.log("USER IS NOT IN ROOM");
       setDbRoom("");
+      setMessages();
     } else {
       setDbRoom(res2.data.roomUser.roomId);
+      resMessages = await getRoomMessages(res2.data.roomUser.roomId);
+      websocket.connect();
+      if(resMessages)
+      {
+        setMessages(resMessages);
+      }
     }
+    
+    
   }
-
+ 
   async function makeLoginRequest() {
     if (!firebase.auth().currentUser) {
       return;
@@ -119,8 +136,33 @@ export default function App() {
       <DbContext.Provider value = {{user: dbUser, room: ""}}>
         <RoomJoin reloadContext={{user: loadUserContext, room: loadRoomContext, all: loadContexts}}></RoomJoin>
       </DbContext.Provider>
+      
     );
+
   }
+  function onSend(msg) {
+    websocket.getWebSocket().send(msg);
+  }
+  if(websocket.getWebSocket())
+  {
+    websocket.getWebSocket().onmessage = e =>{
+      const data = JSON.parse(e.data);
+      if(messages){
+        setMessages([...messages, data]);
+
+      }
+      else
+      {
+        setMessages([data]);
+      }
+    }
+  }
+function chatTab()
+{
+  return(
+    <Chat{...{onSend,messages}}></Chat>
+  )
+}
 
   return (
     <DbContext.Provider value = {{ user: dbUser, room: dbRoom }}>
@@ -151,7 +193,7 @@ export default function App() {
 
           <Tab.Screen name = "Home" component ={HomeScreen}/>
           <Tab.Screen name = "Preferences" component ={Preferences}/>
-          <Tab.Screen name = "Messaging" component ={Chat}/>
+          <Tab.Screen name = "Messaging" component ={chatTab}/>
           <Tab.Screen name = "Settings" component ={SettingsPage}/>
           
         </Tab.Navigator>
