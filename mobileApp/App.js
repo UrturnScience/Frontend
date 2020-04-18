@@ -130,8 +130,8 @@ export default function App() {
 
   function handleNotification(notification) {
     // handle however you want for notifications here
-    Vibration.vibrate();
-    console.log(notification);
+    // Vibration.vibrate();
+    console.log("PUSH NOTIF RECEIVED: ", notification);
   }
 
   useEffect(() => {
@@ -140,7 +140,10 @@ export default function App() {
     }
 
     const subscription = Notifications.addListener(handleNotification);
-    return () => subscription.remove(handleNotification);
+
+    return () => {
+      subscription.remove(handleNotification);
+    };
   }, [expoPushToken]); // remount if expoPushToken changes
 
   if (initializing) return null;
