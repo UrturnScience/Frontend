@@ -3,7 +3,7 @@ import {View, TouchableOpacity, StyleSheet, Text, } from 'react-native';
 import { DbContext } from '../context';
 import { TextInput } from 'react-native-gesture-handler';
 import Axios from 'axios';
-import { BACKEND_URL } from 'react-native-dotenv';
+import { BACKEND_URL } from '../config';
 import * as firebase from 'firebase';
 
 
