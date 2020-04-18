@@ -46,3 +46,5 @@ PROD_STORAGE_BUCKET=XXXXX.appspot.com
 PROD_MESSAGING_SENDER_ID=XXXXX
 PROD_APP_ID=XXXXX
 ```
+
+**IMPORTANT** - `DEV_BACKEND_URL` and `PROD_BACKEND_URL` must have `http://` or `https://` in front of it for websockets to work, since we derive the websocket url from the backend url.
