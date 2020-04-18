@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef } from './RootNavigation';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,24 +11,15 @@ import RoomJoin from './components/RoomJoin';
 import SettingsPage from './components/SettingsPage';
 import HomeScreen from './components/HomeScreen';
 import * as firebase from "firebase";
-import firebaseConfig from './firebase.json';
 import Chat from './components/chat';
-import { BACKEND_URL } from 'react-native-dotenv';
+
 import Axios from 'axios';
 import { DbContext } from './context';
-import { TextInput } from 'react-native-gesture-handler';
-import {
-  getRoomMessages,
-  getUserRoom,
-  joinRoom,
-  createAndJoinRoom
-} from "./src/request";
 import * as websocket from "./src/websocket";
- 
 
-// const Stack = createStackNavigator();
+import { BACKEND_URL, firebaseConfig } from "./config";
+
 const Tab = createBottomTabNavigator();
-
 
 export default function App() {
   if (firebase.apps.length == 0) {
@@ -76,13 +67,6 @@ export default function App() {
       websocket.connect();
     }
   }
-
-  function chatTab()
-  {
-    return(
-      <Chat></Chat>
-    )
-  }
  
   async function makeLoginRequest() {
     if (!firebase.auth().currentUser) {
@@ -111,7 +95,6 @@ export default function App() {
 
   if (initializing) return null;
 
-  
   if (!user) {
     return (
       <Title loadContext={loadContexts}></Title>
@@ -131,7 +114,6 @@ export default function App() {
       </DbContext.Provider>
       
     );
-
   }
 
   return (
@@ -163,7 +145,7 @@ export default function App() {
 
           <Tab.Screen name = "Home" component ={HomeScreen}/>
           <Tab.Screen name = "Chore Draft" component ={Preferences}/>
-          <Tab.Screen name = "Messaging" component ={chatTab}/>
+          <Tab.Screen name = "Messaging" component ={Chat}/>
           <Tab.Screen name = "Settings" component ={SettingsPage}/>
           
         </Tab.Navigator>
@@ -172,31 +154,3 @@ export default function App() {
   );
   
 }
- 
-const styles = StyleSheet.create({
-  parentView:{
-    flex:1,
-    
-  },
-  topView:
-  {
-    flex:1,
-    flexDirection: "column",
-    
-  },
-  bottomView:
-  {
-    flex:1,
-    backgroundColor:'lavender',
-    flexDirection:'column',
-    alignItems:'center',
-    justifyContent:'center'
-   
-  },
-  container:
-  {
-    flex:1,
-    backgroundColor:'#fff',
-    justifyContent:'center',
-  }
-});
