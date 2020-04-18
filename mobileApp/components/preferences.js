@@ -7,17 +7,16 @@ import Dialog from 'react-native-dialog';
 import Modal from 'react-native-modal';
 
 // Required for connecting to backend
-import { BACKEND_URL } from 'react-native-dotenv';
 import Axios from 'axios';
 import { DbContext } from '../context';
 import { FlatList } from 'react-native-gesture-handler';
+import { BACKEND_URL } from "../config";
 
 
 // function to add a horizontal black line on the screen to separate areas of the app
 function Separator() {
   return <View style={styles.separator} />;
 }
-
 
 class Preferences extends Component {
 
