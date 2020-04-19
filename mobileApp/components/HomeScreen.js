@@ -81,7 +81,27 @@ class HomeScreen extends Component {
                 <Text>Loading assignments...</Text>
               </View>
             )
-        } else {
+        } 
+        else if (this.state.assignments.length == 0){
+            return (
+                <View style={{ marginTop:40, flex: 1 }}>
+                    
+                    <View style={styles.parentStyle}>
+                        <Text style={{fontWeight:'bold',fontSize:40}}>Home</Text>
+                    </View>
+
+                    <Separator />
+                    <ScrollView 
+                    refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)}/>}
+                    contentContainerStyle={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                            <Text>You have no chores this week!</Text>
+                        </View>
+                    </ScrollView>
+                </View>
+            )
+        }
+        else {
             return(
                 <View style={{ marginTop:40, flex: 1 }}>
                     
@@ -119,7 +139,7 @@ class HomeScreen extends Component {
 
 const styles = StyleSheet.create({
     parentStyle:{
-        flex:.10,
+        flex:.1,
         justifyContent : 'center',
         alignItems: 'center'
     },
