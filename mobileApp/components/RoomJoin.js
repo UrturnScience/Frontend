@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 import React, { Component } from "react";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { DbContext } from "../context";
 import { TextInput } from "react-native-gesture-handler";
 import Axios from "axios";
-import { BACKEND_URL } from "react-native-dotenv";
+import { BACKEND_URL } from "../config";
 import * as firebase from "firebase";
 
 class RoomJoin extends Component {
@@ -26,26 +25,6 @@ class RoomJoin extends Component {
       this.props.reloadContext.user().then(() => {
         console.log("User set now?");
       });
-=======
-import React, { Component } from 'react';
-import {View, TouchableOpacity, StyleSheet, Text, } from 'react-native';
-import { DbContext } from '../context';
-import { TextInput } from 'react-native-gesture-handler';
-import Axios from 'axios';
-import { BACKEND_URL } from '../config';
-import * as firebase from 'firebase';
-
-
-class RoomJoin extends Component{
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            userId: "",
-            roomId: ""
-        }
->>>>>>> 7d0348de20498a21bf3849720e1a8b3118ba4106
     }
 
     this.setState({

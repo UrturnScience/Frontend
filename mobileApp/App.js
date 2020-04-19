@@ -12,7 +12,6 @@ import SettingsPage from "./components/SettingsPage";
 import HomeScreen from "./components/HomeScreen";
 import * as firebase from "firebase";
 import Chat from "./components/chat";
-import { BACKEND_URL } from "react-native-dotenv";
 import Axios from "axios";
 import { DbContext } from "./context";
 import { registerExpoToken } from "./src/request";
