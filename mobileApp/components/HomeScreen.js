@@ -5,7 +5,7 @@ import { Updates } from 'expo';
 import { onSessionWasInterrupted } from 'expo/build/AR';
 import { fetchUpdateAsync } from 'expo/build/Updates/Updates';
 // Required for connecting to backend
-import { BACKEND_URL } from 'react-native-dotenv';
+import { BACKEND_URL } from '../config';
 import Axios from 'axios';
 import { DbContext } from '../context';
 
@@ -24,30 +24,7 @@ class HomeScreen extends Component {
         
         //the initial state that the screen is loaded with
         this.state = {
-            // here is some hard-coded data of what the chores object might look like once we get receive it from
-            // the backend request
-            choresToDo: [
-                {
-                    id: 1,
-                    choreTitle: "Take Out Trash",
-                    isChoreCompleted: false
-                },
-                {
-                    id: 2,
-                    choreTitle: "Do Laundry",
-                    isChoreCompleted: false
-                },
-                {
-                    id: 3,
-                    choreTitle: "Wash Dishes",
-                    isChoreCompleted: false
-                },
-                {
-                    id: 4,
-                    choreTitle: "Sweep Living Room",
-                    isChoreCompleted: false
-                }
-            ],
+            assignments: null,
             refreshing: false
         }
     
@@ -57,18 +34,38 @@ class HomeScreen extends Component {
 
     getAssignments(user) {
         this._assignmentsRequest = Axios.get(`${BACKEND_URL}/assignment/active/${user._id}`).then(response => {
-            console.log(response.data);
+            // this.setState({
+            //     assignments: response.data.assignments
+            // })
+            let chores = response.data.assignments.map(a => Axios.get(`${BACKEND_URL}/chore/${a.choreId}`));
+
+            Promise.all(chores).then(results => {
+                for (let i = 0; i < results.length; i++) {
+                    response.data.assignments[i].chore = results[i].data.chore;
+                }
+                this.setState({
+                    assignments: response.data.assignments
+                })
+                this._assignmentsRequest = null
+            });
         })
+        console.log("CURRENT ASS: ", this.state.assignments);
         this.setState({refreshing: false});
     }
 
+    componentDidMount() {
+        this.getAssignments(this.context.user);
+    }
+
+
     // toggles the chore as completed/not completed
-    toggleChoreCompletion(responseObj, choreID){
+    toggleChoreCompletion(responseObj, assID){
         this.setState(prevState => ({
-            choresToDo: prevState.choresToDo.map(
-                chore => chore.id === choreID? {...chore, isChoreCompleted: !chore.isChoreCompleted}: chore
+            assignments: prevState.assignments.map(
+                a => a._id === assID? {...a, successful: !a.successful}: a
             )
         }))
+        Axios.put(`${BACKEND_URL}/assignment/active/${assID}`)
     }
 
     //sets the refreshing spinner while data is being retrieved from the backend
@@ -78,39 +75,44 @@ class HomeScreen extends Component {
     }
 
     render(){
+        if (this.state.assignments == null) {
+            return (
+              <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                <Text>Loading assignments...</Text>
+              </View>
+            )
+        } else {
+            return(
+                <View style={{ marginTop:40, flex: 1 }}>
+                    
+                    <View style={styles.parentStyle}>
+                        <Text style={{fontWeight:'bold',fontSize:40}}>Home</Text>
+                    </View>
 
-        return(
+                    <Separator />
+                    
+                    <ScrollView refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)}/>}>
+                        <Card>
+                            
+                            <CardItem header style={{justifyContent: 'center', alignItems: 'center'}}>
+                                <Text style={{fontWeight: 'bold', fontSize: 16}}>My Chores This Week</Text>
+                            </CardItem>
 
-            <View style={{ marginTop:40, flex: 1 }}>
-                
-                <View style={styles.parentStyle}>
-                    <Text style={{fontWeight:'bold',fontSize:40}}>Home</Text>
+                            {
+                                this.state.assignments.map(assignment => (
+                                    <ListItem key={assignment._id}>
+                                        <CheckBox color="#3284f7" checked={!assignment.active} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, assignment._id)}/>
+                                        <Body style={{padding: 10}}>
+                                            <Text>{assignment.chore.name}</Text>
+                                        </Body>
+                                    </ListItem>
+                                ))
+                            }
+                        </Card>
+                    </ScrollView>
                 </View>
-
-                <Separator />
-                
-                <ScrollView refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)}/>}>
-                    <Card>
-                        
-                        <CardItem header style={{justifyContent: 'center', alignItems: 'center'}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 16}}>My Chores This Week</Text>
-                        </CardItem>
-
-                        {
-                            this.state.choresToDo.map(chore => (
-                                <ListItem key={chore.id}>
-                                    <CheckBox color="#3284f7" checked={chore.isChoreCompleted} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, chore.id)}/>
-                                    <Body style={{padding: 10}}>
-                                        <Text>{chore.choreTitle}</Text>
-                                    </Body>
-                                </ListItem>
-                            ))
-                        }
-                    </Card>
-                </ScrollView>
-            </View>
-        )
-
+            )
+        }
     }
 
 }
