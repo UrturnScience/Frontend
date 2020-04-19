@@ -1,12 +1,7 @@
-import React, { Component, useState, useEffect } from 'react';
-import {Alert, ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
-import { Button,Item } from 'native-base';
+import React, { Component } from 'react';
+import { ImageBackground, StyleSheet,View,Text, Image } from 'react-native';
 import Email from './emailAuth'
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase'
-import * as Facebook from 'expo-facebook';
 
 const styles = StyleSheet.create({
   parentView:{
@@ -119,50 +114,6 @@ class Title extends Component{
     }.bind(this));
   }
 
-  signInWithGoogleAsync = async () => {
-    try {
-      const result = await Google.logInAsync({
-        behavior :'web',
-        iosClientId: '4447972043-uf99bspbvj7a495iv8qk5s8c9sns0rf9.apps.googleusercontent.com',
-        scopes: ['profile', 'email'],
-      });
-  
-      if (result.type === 'success') {
-        this.onSignIn(result)
-        return result.accessToken;
-      } else {
-        return { cancelled: true };
-      }
-    } catch (e) {
-      return { error: true };
-    }
-  }
-
-  async loginWithFacebook() {
-    try {
-      await Facebook.initializeAsync('1058666187865777');
-      const {
-        type,
-        token,
-        expires,
-        permissions,
-        declinedPermissions,
-      } = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ['public_profile'],
-      });
-      if (type === 'success') {
-            const credential = firebase.auth.FacebookAuthProvider.credential(token)
-            firebase.auth().signInWithCredential(credential).catch((error) => {
-              console.log(error)
-            })
-      } else {
-        // type === 'cancel'
-      }
-    } catch ({ message }) {
-      alert(`Facebook Login Error: ${message}`);
-    }
-  }
-
   render()
   {
     return (
@@ -173,27 +124,6 @@ class Title extends Component{
                   <Image style={{height:50}} resizeMode = 'contain' source= {require('../assets/ur.png')}></Image>
                   <Text style={{fontSize:20}} >Improving Shared Living</Text>
               </View>
-                  
-                  
-              {/* <View style= {styles.socialView}>
-              
-                <Button 
-                full rounded style = {{marginTop:10}} primary
-                onPress={()=>this.loginWithFacebook()}>
-                  <Text style={{color:'white'}}> Facebook</Text>
-                </Button>
-            
-                <Button 
-                full rounded style = {{marginTop:10}} light
-                onPress={()=>this.signInWithGoogleAsync()}>
-                  <Text style={{color:'black'}}> Google</Text>
-                </Button>
-              
-              </View>
-              <Text style = {{marginTop:40,color: 'grey'}}>
-              --------------------------- OR --------------------------
-              </Text>
-            </View> */}
           </View>
             
           <View style = {styles.bottomView}>

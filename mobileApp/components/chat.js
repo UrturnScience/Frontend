@@ -58,16 +58,18 @@ class Chat extends React.Component {
         websocket.getWebSocket().onmessage = msg =>{
           const data = parseMsg(JSON.parse(msg.data));
 
-          if (data.user._id == this.context.user._id) {
-            this.state.messages.find(m => {
-              if (m.pending == true && m._id === data._id) {
-                m.pending = false;
-                m.sent = true;
+          console.log("RECEIVED MESSAGE FROM WEBSOCKET");
 
-                // Used to force a re-render of the chat component to reflect changes (doesn't always work on low latency)
-                this.setState({ state: this.state });
-              }
-            });
+          if (data.user._id == this.context.user._id) {
+            const sentIndex = this.state.messages.findIndex(m => m.pending == true && m._id === data._id);
+            let messages = [...this.state.messages];
+            let sentMessage = {
+              ...messages[sentIndex],
+              pending: false,
+              sent: true
+            }
+            messages[sentIndex] = sentMessage;
+            this.setState({ messages });
           } else {
             this.setState(previousState => ({
               messages: GiftedChat.append(this.state.messages, data)

@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Vibration } from "react-native";
+import { Text, View, Vibration } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { navigationRef } from "./RootNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -11,24 +11,16 @@ import RoomJoin from "./components/RoomJoin";
 import SettingsPage from "./components/SettingsPage";
 import HomeScreen from "./components/HomeScreen";
 import * as firebase from "firebase";
-import firebaseConfig from "./firebase.json";
 import Chat from "./components/chat";
 import { BACKEND_URL } from "react-native-dotenv";
 import Axios from "axios";
 import { DbContext } from "./context";
-import { TextInput } from "react-native-gesture-handler";
-import {
-  getRoomMessages,
-  getUserRoom,
-  joinRoom,
-  createAndJoinRoom,
-  registerExpoToken,
-} from "./src/request";
+import { registerExpoToken } from "./src/request";
 import * as websocket from "./src/websocket";
 import * as notif from "./src/notif";
 import { Notifications } from "expo";
+import { BACKEND_URL, firebaseConfig } from "./config";
 
-// const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
@@ -144,7 +136,6 @@ export default function App() {
 
   if (initializing) return null;
 
-
   if (!user) {
     return <Title loadContext={loadContexts}></Title>;
   } else if (user && !dbUser && !dbRoom) {
@@ -206,25 +197,3 @@ export default function App() {
     </DbContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  parentView: {
-    flex: 1,
-  },
-  topView: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  bottomView: {
-    flex: 1,
-    backgroundColor: "lavender",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-  },
-});

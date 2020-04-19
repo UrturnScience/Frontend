@@ -19,4 +19,32 @@ Additionally, in order for expo to work, it needs the IP address of your compute
 - On a mac, this can be found by running `ifconfig | grep 192`. Your NAT IP address is the one listed next to `inet`.
 - On windows, you have to use `ipconfig` and look for the address on your "wireless Lan adapter wifi".
 
-Take this IP address and put it in a `.env` file at the project root: `BACKEND_URL=http://192.168.XX.XX:3000`
+Take this IP address and put it in a `.env` file at the project root.
+
+## New `.env` structure
+
+For the `.env` file to work with production, we needed to put all prod and dev firebase information + backend url information for prod and dev into the `.env` file. Sample .env file:
+
+```
+PRODUCTION_MODE=false
+
+DEV_BACKEND_URL=http://192.168.XX.XX:3000
+DEV_API_KEY=XXXXX
+DEV_AUTH_DOMAIN=XXXXX.firebaseapp.com
+DEV_DATABASE_URL=https://XXXXX.firebaseio.com
+DEV_PROJECT_ID=XXXXX
+DEV_STORAGE_BUCKET=XXXXX.appspot.com
+DEV_MESSAGING_SENDER_ID=XXXXX
+DEV_APP_ID=XXXXX
+
+PROD_BACKEND_URL=http://example.backend.com
+PROD_API_KEY=XXXXX
+PROD_AUTH_DOMAIN=XXXXX.firebaseapp.com
+PROD_DATABASE_URL=https://XXXXX.firebaseio.com
+PROD_PROJECT_ID=XXXXX
+PROD_STORAGE_BUCKET=XXXXX.appspot.com
+PROD_MESSAGING_SENDER_ID=XXXXX
+PROD_APP_ID=XXXXX
+```
+
+**IMPORTANT** - `DEV_BACKEND_URL` and `PROD_BACKEND_URL` must have `http://` or `https://` in front of it for websockets to work, since we derive the websocket url from the backend url.
