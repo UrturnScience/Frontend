@@ -149,7 +149,7 @@ export default function App() {
     );
   } else if (user && dbUser && !dbRoom) {
     return (
-      <DbContext.Provider value={{ user: dbUser, room: "" }}>
+      <DbContext.Provider value={{ user: dbUser, room: "", expoPushToken }}>
         <RoomJoin
           reloadContext={{
             user: loadUserContext,
@@ -162,7 +162,7 @@ export default function App() {
   }
 
   return (
-    <DbContext.Provider value={{ user: dbUser, room: dbRoom }}>
+    <DbContext.Provider value={{ user: dbUser, room: dbRoom, expoPushToken }}>
       <NavigationContainer ref={navigationRef}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
