@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import {TouchableOpacity, StyleSheet, ScrollView, RefreshControl, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Form, Input, Label, Item, CheckBox } from 'native-base';
 import DraggableFlatList from "react-native-draggable-flatlist";
@@ -30,15 +30,20 @@ class Preferences extends Component {
     this.state = {
       preferences: null,
       isSubmitPrefsPopupVisible: false,
+      isDeleteChorePopupVisible: false,
       viewNewChore: false,
       newChoreName: "",
       newChoreRecurring: false,
+      refreshing: false,
+      viewChoreInfo: false,
     }
   }
 
   static contextType = DbContext;
 
   getPreferences(user) {
+    this.setState({ preferences: [] });
+
     this._preferenceRequest = Axios.get(`${BACKEND_URL}/preference/upcoming/${user._id}`).then(res => {
       let choreCalls = res.data.preferences.map(p => Axios.get(`${BACKEND_URL}/chore/${p.choreId}`));
 
@@ -53,6 +58,8 @@ class Preferences extends Component {
         this._preferenceRequest = null;
       });
     });
+
+    this.setState({ refreshing: false });
   }
 
   componentDidMount() {
@@ -69,7 +76,7 @@ class Preferences extends Component {
     Axios.post(`${BACKEND_URL}/chore/create`, {
       roomId: this.context.room,
       name: this.state.newChoreName,
-      time: 1,
+      time: 0,
       recurring: this.state.newChoreRecurring,
     }).then(() => {
       this.toggleModal();
@@ -91,12 +98,12 @@ class Preferences extends Component {
 
   // shows the popup window to submit preferences
   showSubmitPrefsPopup = () => {
-    this.setState({ isSubmitPrefsPopupVisible: true})
+    this.setState({ isSubmitPrefsPopupVisible: true});
   }
 
   // hides the popup window to submit preferences
   hideSubmitPrefsPopup = () => {
-    this.setState({ isSubmitPrefsPopupVisible: false})
+    this.setState({ isSubmitPrefsPopupVisible: false});
   }
 
   // updates the order of the chores
@@ -104,7 +111,7 @@ class Preferences extends Component {
     let newPreferences = [];
     for (let i = 0; i < listComponents.length; i++) {
       for (let j = 0; j < this.state.preferences.length; j++) {
-        if (!this.state.preferences[j].chore.name.localeCompare(listComponents[i]["label"])) {
+        if (!this.state.preferences[j].chore._id.localeCompare(listComponents[i].key)) {
           newPreferences.push(this.state.preferences[j]);
         }
       }
@@ -118,20 +125,23 @@ class Preferences extends Component {
   submitPreferences = () => {
     Axios.put(`${BACKEND_URL}/preference/update/${this.context.user._id}`, {
       preferenceIds: this.state.preferences.map(c => c._id)
-    }).then(
-      res => {
-        this.setState({isSubmitPrefsPopupVisible: false})
-      }
-    ).catch(
-      e => {
-        console.error(e);
-      }
-    )
-    this.setState({isSubmitPrefsPopupVisible: false})
+    }).then(_ => {
+      this.setState({ isSubmitPrefsPopupVisible: false });
+      this.getPreferences(this.context.user);
+    }).catch(e => {
+      console.error(e);
+    });
+
+    this.setState({ isSubmitPrefsPopupVisible: false })
+  }
+
+  onRefresh = () => {
+    this.setState({ refreshing: true });
+    this.getPreferences(this.context.user)
   }
 
   // renders the individual chore draggable items in the screen
-  renderPreferenceItem = ({ item, index, drag, isActive }) => {
+  renderPreferenceItem = ({ item, _, drag, isActive }) => {
     return (
       <TouchableOpacity
         style={{
@@ -198,15 +208,20 @@ class Preferences extends Component {
               <View style={styles.draggableFlatList}>
                 <DraggableFlatList
                   data={this.state.preferences.map(preference => ({
-                    key: `item-${preference.chore.name}`,
+                    key: preference.chore._id,
                     label: preference.chore.name,
                     backgroundColor: `white`,
                   }))}
                   renderItem={this.renderPreferenceItem}
-                  keyExtractor={(item, index) => `draggable-item-${item.key}`}
+                  keyExtractor={(item) => item.key}
                   onDragEnd={({data}) => this.updatePreferenceRanking(data)}
                   autoscrollThreshold={50}
-                  scrollEnabled={false}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={this.state.refreshing}
+                      onRefresh={this.onRefresh.bind(this)}
+                    />
+                  }
                 />
               </View>
             </View>
@@ -216,29 +231,22 @@ class Preferences extends Component {
               <Text style={styles.helperText}>Press and hold a chore to drag and drop it in the list</Text>
             </View>
             <View style={styles.buttons}>
-              <Button
-                style={styles.refreshButton}
-                onPress={() => {
-                  this.getPreferences(this.context.user);
-                }}
-              >
-                <Ionicons name="ios-refresh" size={25} color="grey" />
-              </Button>
               <Button style={styles.newChoreButton} onPress={this.toggleModal}>
                 <Text style={{ color: "white" }}>New chore +</Text>
               </Button>
               <Button style={styles.submitButton} onPress={this.showSubmitPrefsPopup}>
-                <Text style={{ color: "white" }}>Submit</Text>
+                <Text style={{ color: "white" }}>Submit picks</Text>
               </Button>
             </View>
           </View>
           <Dialog.Container visible={this.state.isSubmitPrefsPopupVisible}>
             <Dialog.Title>Submit Preferences</Dialog.Title>
-            <Dialog.Description>Are you sure you want to submit your chore preferences?</Dialog.Description>
+            <Dialog.Description>Are you sure you want to submit your picks for this week?</Dialog.Description>
             <Dialog.Button label="Cancel" color="grey" onPress={this.hideSubmitPrefsPopup}/>
             <Dialog.Button label="Submit" color="#3284f7" onPress={this.submitPreferences}/>
           </Dialog.Container>
 
+          {/* Modal that handles adding a new chore */}
           <Modal
             isVisible={this.state.viewNewChore}
             style={styles.modal}
@@ -268,7 +276,7 @@ class Preferences extends Component {
               </View>
               <View style={styles.modalButtons}>
                 <Button onPress={this.toggleModal} style={styles.cancelNewChoreButton}>
-                  <Text style={{ color: "grey"}}t>Cancel</Text>
+                  <Text style={{ color: "black"}}t>Cancel</Text>
                 </Button>
                 <Button onPress={this.submitChore} style={styles.submitNewChoreButton}>
                   <Text style={{ color: "white"}}t>Create</Text>
@@ -290,7 +298,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: 40,
-    // height: "70%",
     flex: 1,
   },
   bottom: {
@@ -300,7 +307,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: "center",
     padding: 10,
   },
@@ -360,24 +367,19 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 15,
     paddingBottom: 200,
-    // display: "flex",
-    // flexDirection: "row",
     alignItems: "center",
   },
   newChoreForm: {
     width: "60%",
     marginBottom: 25,
-    // justifyContent: "center"
   },
   modalButtons: {
     marginTop: 20,
-    // display: "flex",
     width: "70%",
     justifyContent: "space-around",
     flexDirection: "row",
   },
   cancelNewChoreButton: {
-    // justifyContent: "center",
     justifyContent: "center",
     width: "40%",
     backgroundColor: "lightgrey",
