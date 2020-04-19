@@ -49,7 +49,7 @@ class HomeScreen extends Component {
                 this._assignmentsRequest = null
             });
         })
-        console.log("CURRENT ASS: ", this.state.assignments);
+        console.log("CURRENT ASSIGNMENTS: ", this.state.assignments);
         this.setState({refreshing: false});
     }
 
@@ -65,7 +65,7 @@ class HomeScreen extends Component {
                 a => a._id === assID? {...a, successful: !a.successful}: a
             )
         }))
-        Axios.put(`${BACKEND_URL}/assignment/active/${assID}`)
+        Axios.put(`${BACKEND_URL}/assignment/successful/${assID}`)
     }
 
     //sets the refreshing spinner while data is being retrieved from the backend
@@ -101,7 +101,7 @@ class HomeScreen extends Component {
                             {
                                 this.state.assignments.map(assignment => (
                                     <ListItem key={assignment._id}>
-                                        <CheckBox color="#3284f7" checked={!assignment.active} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, assignment._id)}/>
+                                        <CheckBox color="#3284f7" checked={assignment.successful} onPress={(responseObj) => this.toggleChoreCompletion(responseObj, assignment._id)}/>
                                         <Body style={{padding: 10}}>
                                             <Text>{assignment.chore.name}</Text>
                                         </Body>
