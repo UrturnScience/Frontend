@@ -32,6 +32,7 @@ class SettingsPage extends Component {
                 
                 <Button style={styles.roomIdContainer} onPress={this.copyToClipboard}>
                     <Text style={styles.buttonText}>Copy Room ID</Text>
+                    <Text style={styles.roomIdText}>{this.context.room}</Text>
                 </Button>
 
                 <Button style={styles.buttonContainer} onPress={this.logout}>
@@ -50,26 +51,33 @@ const styles = StyleSheet.create({
         padding:20,
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: 'green'
     },
     buttonText:{
         color:'white',
-        // fontWeight:'bold',
-        fontSize: 18,
+        fontSize: 20,
+        padding: 5,
+    },
+    roomIdText: {
+        color: 'white',
+        fontSize: 13,
+        paddingBottom: 5,
     },
     buttonContainer:{
         backgroundColor:'tomato',
-        padding:15,
-        width: '60%',
+        padding: 15,
+        width: '70%',
+        height: 'auto',
         justifyContent:'center',
         marginTop: 25,
     },
     roomIdContainer: {
         backgroundColor: '#3284f7',
         padding: 15,
-        width: '60%',
-        justifyContent:'center',
+        width: '70%',
+        height: 'auto',
+        justifyContent: 'center',
         marginBottom: 25,
+        flexDirection: 'column',
     }
 });
 
