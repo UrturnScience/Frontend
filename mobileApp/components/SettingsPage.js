@@ -3,6 +3,7 @@ import firebase from 'firebase';
 import {View, TouchableOpacity, StyleSheet, Text, Clipboard} from 'react-native';
 import { Button } from 'native-base';
 import { DbContext } from '../context';
+import { logout as makeLogoutRequest, unregisterExpoToken } from "../src/request";
 
 class SettingsPage extends Component {
 
@@ -14,9 +15,14 @@ class SettingsPage extends Component {
     };
 
     logout = async () => {
+        if(this.context.expoPushToken){
+            await unregisterExpoToken(this.context.expoPushToken);
+        }
+        
         firebase.auth().signOut().then(() => {
             console.log('\nLogout Successful\n');
         });
+        makeLogoutRequest();
     }
 
     render() {

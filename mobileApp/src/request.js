@@ -29,4 +29,20 @@ export async function createAndJoinRoom(userId) {
   return roomId;
 }
 
+export async function registerExpoToken(expoToken) {
+  await Axios.post(`${httpUrl}/user/expoPushNotificationToken`, {
+    token: expoToken,
+  });
+}
+
+export async function unregisterExpoToken(expoToken) {
+  await Axios.delete(`${httpUrl}/user/expoPushNotificationToken`, {
+    data: { token: expoToken },
+  });
+}
+
+export async function logout() {
+  await Axios.delete(`${httpUrl}/user/logout`);
+}
+
 export { httpUrl, wsUrl };
