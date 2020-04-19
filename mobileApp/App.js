@@ -99,10 +99,6 @@ export default function App() {
     }
   }
 
-  function chatTab() {
-    return <Chat></Chat>;
-  }
-
   async function makeLoginRequest() {
     if (!firebase.auth().currentUser) {
       return;
@@ -147,6 +143,7 @@ export default function App() {
   }, [expoPushToken]); // remount if expoPushToken changes
 
   if (initializing) return null;
+
 
   if (!user) {
     return <Title loadContext={loadContexts}></Title>;
@@ -202,7 +199,7 @@ export default function App() {
         >
           <Tab.Screen name="Home" component={HomeScreen} />
           <Tab.Screen name="Chore Draft" component={Preferences} />
-          <Tab.Screen name="Messaging" component={chatTab} />
+          <Tab.Screen name="Messaging" component={Chat} />
           <Tab.Screen name="Settings" component={SettingsPage} />
         </Tab.Navigator>
       </NavigationContainer>
