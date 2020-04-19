@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React, { useState, useEffect } from "react";
-import { Text, View, Vibration } from "react-native";
+import { Text, View, Vibration,StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { navigationRef } from "./RootNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -9,19 +9,23 @@ import { Ionicons } from "@expo/vector-icons";
 import Preferences from "./components/preferences";
 import RoomJoin from "./components/RoomJoin";
 import SettingsPage from "./components/SettingsPage";
+import { Icon } from "react-native-elements";
 import HomeScreen from "./components/HomeScreen";
 import * as firebase from "firebase";
 import Chat from "./components/chat";
+import withBadge from "./components/withBadge";
 import Axios from "axios";
 import { DbContext } from "./context";
 import { registerExpoToken } from "./src/request";
+
 import * as websocket from "./src/websocket";
 import * as notif from "./src/notif";
 import { Notifications } from "expo";
+
 import { BACKEND_URL, firebaseConfig } from "./config";
 
 const Tab = createBottomTabNavigator();
-
+const BadgedIcon = withBadge(2)(Icon);
 export default function App() {
   if (firebase.apps.length == 0) {
     firebase.initializeApp(firebaseConfig);
@@ -177,6 +181,12 @@ export default function App() {
               } else if (route.name === "Chore Draft") {
                 iconName = focused ? "md-options" : "ios-options";
               } else if (route.name === "Messaging") {
+                return <BadgedIcon
+      name={"ios-chatboxes"}
+      type="ionicon"
+      color={color}
+      containerStyle={styles.padRight}
+    />
                 iconName = focused ? "md-chatboxes" : "ios-chatboxes";
               }
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -196,3 +206,14 @@ export default function App() {
     </DbContext.Provider>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  padLeft: {
+    paddingLeft: 16
+  },
+  padRight: {
+    paddingRight: 16
+  }
+});

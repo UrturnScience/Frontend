@@ -51,3 +51,4 @@ const firebaseConfig = {
 
 const BACKEND_URL = PRODUCTION_MODE == "true" ? PROD_BACKEND_URL : DEV_BACKEND_URL;
 export { firebaseConfig, BACKEND_URL };
+
