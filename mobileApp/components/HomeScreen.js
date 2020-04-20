@@ -33,7 +33,7 @@ class HomeScreen extends Component {
       viewReportModal: false,
       assignmentToReport: "",
       reportReason: "",
-      roomAssignments: [],
+      roomAssignments: null,
 		}
 	}
 
@@ -41,8 +41,6 @@ class HomeScreen extends Component {
 
 	getAssignments(user) {
 		this._assignmentsRequest = Axios.get(`${BACKEND_URL}/assignment/active/${user._id}`).then(response => {
-      console.log(response.data.assignments);
-
 			let chores = response.data.assignments.map(a => Axios.get(`${BACKEND_URL}/chore/${a.choreId}`));
 
 			Promise.all(chores).then(results => {
@@ -118,7 +116,8 @@ class HomeScreen extends Component {
 	//sets the refreshing spinner while data is being retrieved from the backend
 	onRefresh(){
 		this.setState({refreshing: true});
-		this.getAssignments(this.context.user)
+    this.getAssignments(this.context.user);
+    this.getRoomAssignments(this.context.room);
   }
 
   RemindButton() {
