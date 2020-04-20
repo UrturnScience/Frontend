@@ -14,7 +14,6 @@ import { getRoomMessages } from "../src/request";
 import * as websocket from "../src/websocket";
 
 const parseMsg = (msg) => {
-  console.log(msg);
   return {
     _id: msg.giftedId && msg.giftedId != "-1" ? msg.giftedId : msg._id,
     mongoId: msg._id,

@@ -118,7 +118,7 @@ export default function App() {
   function handleNotification(notification) {
     // handle however you want for notifications here
     Vibration.vibrate();
-    console.log("PUSH NOTIF SENT", notification);
+    console.log("PUSH NOTIF RECIEVED: ", notification);
 
     // Info here on different origins
     // https://docs.expo.io/versions/latest/guides/push-notifications/#3-handle-receiving-the-notification-in-your
@@ -133,13 +133,11 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (!expoPushToken) {
-      return;
-    }
-
     const subscription = Notifications.addListener(handleNotification);
+    console.log("MOUNTING NOTIFICATION")
 
     return () => {
+      console.log("UNMOUNTING NOTIFICATION")
       subscription.remove(handleNotification);
     };
   }, [expoPushToken]); // remount if expoPushToken changes
