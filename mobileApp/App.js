@@ -2,7 +2,7 @@ import "react-native-gesture-handler";
 import React, { useState, useEffect } from "react";
 import { Text, View, Vibration } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { navigationRef } from "./RootNavigation";
+import { navigationRef, navigate } from "./RootNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Title from "./components/Title";
 import { Ionicons } from "@expo/vector-icons";
@@ -117,8 +117,19 @@ export default function App() {
 
   function handleNotification(notification) {
     // handle however you want for notifications here
-    // Vibration.vibrate();
-    console.log("PUSH NOTIF RECEIVED: ", notification);
+    Vibration.vibrate();
+    console.log("PUSH NOTIF SENT", notification);
+
+    // Info here on different origins
+    // https://docs.expo.io/versions/latest/guides/push-notifications/#3-handle-receiving-the-notification-in-your
+    switch (notification.origin) {
+      case "selected": // App was background/closed, opened by selected push notification
+        navigate("Messaging");
+        break;
+      default:
+        console.log("PUSH NOTIF UNHANDLED");
+        break;
+    }
   }
 
   useEffect(() => {
