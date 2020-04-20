@@ -95,7 +95,7 @@ class HomeScreen extends Component {
                     refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)}/>}
                     contentContainerStyle={{flex: 1, justifyContent: "center", alignItems: "center"}}>
                         <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-                            <Text>You have no chores this week!</Text>
+                            <Text>You have no chores assigned this week!</Text>
                         </View>
                     </ScrollView>
                 </View>

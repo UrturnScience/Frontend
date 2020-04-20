@@ -102,6 +102,16 @@ class Chat extends React.Component {
     websocket.getWebSocket().send(JSON.stringify(data));
   }
 
+  renderFooter(props) {
+    if (this.state.messages.length == 0) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.emptyMessagesText}>No messages have been sent!</Text>
+        </View>
+      )
+    }
+  }
+
   render() {
     return (
       <View style={{ backgroundColor: "white", flex: 1, paddingTop: 20 }}>
@@ -113,9 +123,22 @@ class Chat extends React.Component {
           user={{
             _id: this.context.user._id,
           }}
+          renderChatFooter={this.renderFooter.bind(this)}
         />
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: "100%",
+  },
+  emptyMessagesText: {
+    color: "grey",
+  }
+});
+
 export default Chat;
