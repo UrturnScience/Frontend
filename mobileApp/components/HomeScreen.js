@@ -33,7 +33,7 @@ class HomeScreen extends Component {
       viewReportModal: false,
       assignmentToReport: "",
       reportReason: "",
-      roomAssignments: null,
+      roomAssignments: [],
 		}
 	}
 
@@ -66,17 +66,27 @@ class HomeScreen extends Component {
 			Promise.all(chores).then(results => {
 				for (let i = 0; i < results.length; i++) {
 					response.data.assignments[i].chore = results[i].data.chore;
-				}
+        }
+        
+        let responsesFormatted = response.data.assignments
+          .filter(ra => ra.userId != this.context.user._id)
+          .map(ra => {
+            return {
+              label: ra.chore.name,
+              value: ra._id
+            }
+          });
+
 				this.setState({
-					roomAssignments: response.data.assignments
+          roomAssignments: responsesFormatted
 				});
 			});
     });
   }
 
 	componentDidMount() {
-    this.getAssignments(this.context.user);
     this.getRoomAssignments(this.context.room);
+    this.getAssignments(this.context.user);
 	}
 
 	// toggles the chore as completed/not completed
@@ -96,7 +106,6 @@ class HomeScreen extends Component {
   }
 
   submitReport() {
-    console.log("SUBMIT REPORT");
     Axios.post(`${BACKEND_URL}/assignment/report/${this.state.assignmentToReport}`, {
       status: this.state.reportReason
     }).then(() => {
@@ -110,13 +119,71 @@ class HomeScreen extends Component {
 	onRefresh(){
 		this.setState({refreshing: true});
 		this.getAssignments(this.context.user)
-	}
+  }
+
+  RemindButton() {
+    if (this.state.roomAssignments.length > 0) {
+      return (
+        <TouchableOpacity style={styles.remindButton} onPress={this.toggleModal.bind(this)}>
+          <MaterialCommunityIcons name='chat-alert' size={20} color='lightgrey' />
+          <Text style={{ color: "grey", paddingLeft: 3, paddingBottom: 3, fontSize: 10 }}>Remind</Text>
+        </TouchableOpacity>
+      );
+    }
+  }
+  
+  RemindModal() {
+    if (this.state.roomAssignments.length > 0) {
+      return (
+        <Modal
+          isVisible={this.state.viewReportModal}
+          style={styles.modal}
+        >
+          <View style={styles.reportContainer}>
+            <View style={{ justifyContent: "center" }}>
+              <Text style={{fontSize: 28, marginTop: 20 }}>Something wrong?</Text>
+              <Text style={{fontSize: 14, marginTop: 10 }}>Let the bot take care of the nagging</Text>
+            </View>
+            <View style={styles.reportForm}>
+              <Dropdown 
+                label="Select assignment"
+                data={this.state.roomAssignments}
+                onChangeText={(val) => this.setState({ assignmentToReport: val })}
+              />
+              <Dropdown 
+                label="Select reason"
+                data={[
+                  {
+                    label: "Not complete yet",
+                    value: "late"
+                  },
+                  {
+                    label: "Not done correctly",
+                    value: "wrong",
+                  }
+                ]}
+                onChangeText={(val) => this.setState({ reportReason: val })}
+              />
+            </View>
+            <View style={styles.modalButtons}>
+              <Button onPress={this.toggleModal.bind(this)} style={styles.cancelReportButton}>
+                <Text style={{ color: "black"}}>Cancel</Text>
+              </Button>
+              <Button onPress={this.submitReport.bind(this)} style={styles.submitReportButton}>
+                <Text style={{ color: "white"}}>Remind</Text>
+              </Button>
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+  }
 
 	render(){
 		if (this.state.assignments == null || this.state.roomAssignments == null) {
 			return (
 			  <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-				<Text>Loading assignments...</Text>
+				  <Text>Loading assignments...</Text>
 			  </View>
 			)
 		} 
@@ -133,13 +200,11 @@ class HomeScreen extends Component {
 					refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)}/>}
 					contentContainerStyle={{flex: 1, justifyContent: "center", alignItems: "center"}}>
 						<View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-							<Text style={{ color: "grey", fontSize: 16 }}>You have no chores assigned this week!</Text>
-              <TouchableOpacity style={styles.remindButton} onPress={this.toggleModal.bind(this)}>
-                <MaterialCommunityIcons name='chat-alert' size={20} color='lightgrey' />
-                <Text style={{ color: "grey", paddingLeft: 3, paddingBottom: 3, fontSize: 10 }}>Report</Text>
-              </TouchableOpacity>
+							<Text style={{ color: "grey", fontSize: 16, paddingBottom: 15 }}>You have no chores assigned this week!</Text>
+              {this.RemindButton()}
 						</View>
 					</ScrollView>
+          {this.RemindModal()}
 				</View>
 			)
 		}
@@ -158,10 +223,7 @@ class HomeScreen extends Component {
 							
 							<CardItem header style={styles.taskListHeader}>
 								<Text style={styles.taskListHeaderText}>To-do this week</Text>
-                <TouchableOpacity style={styles.remindButton} onPress={this.toggleModal.bind(this)}>
-                  <MaterialCommunityIcons name='chat-alert' size={20} color='lightgrey' />
-                  <Text style={{ color: "grey", paddingLeft: 3, paddingBottom: 3, fontSize: 10 }}>Report</Text>
-                </TouchableOpacity>
+                {this.RemindButton()}
 							</CardItem>
 
 							{
@@ -177,61 +239,11 @@ class HomeScreen extends Component {
 						</Card>
 					</ScrollView>
 
-          {/* Modal that handles creating a report */}
-          <Modal
-            isVisible={this.state.viewReportModal}
-            style={styles.modal}
-          >
-            <View style={styles.reportContainer}>
-              <View style={{ justifyContent: "center" }}>
-                <Text style={{fontSize: 28, marginTop: 20 }}>Something wrong?</Text>
-                <Text style={{fontSize: 14, marginTop: 10 }}>Let the bot take care of the nagging</Text>
-              </View>
-              <View style={styles.reportForm}>
-                <Dropdown 
-                  label="Select assignment"
-                  data={
-                    this.state.roomAssignments
-                      .filter(ra => ra.userId != this.context.user._id)
-                      .map(ra => {
-                        return {
-                          label: ra.chore.name,
-                          value: ra._id
-                        }
-                      })
-                  }
-                  onChangeText={(val) => this.setState({ assignmentToReport: val })}
-                />
-                <Dropdown 
-                  label="Select reason"
-                  data={[
-                    {
-                      label: "Not complete yet",
-                      value: "late"
-                    },
-                    {
-                      label: "Not done correctly",
-                      value: "wrong",
-                    }
-                  ]}
-                  onChangeText={(val) => this.setState({ reportReason: val })}
-                />
-              </View>
-              <View style={styles.modalButtons}>
-                <Button onPress={this.toggleModal.bind(this)} style={styles.cancelReportButton}>
-                  <Text style={{ color: "black"}}>Cancel</Text>
-                </Button>
-                <Button onPress={this.submitReport.bind(this)} style={styles.submitReportButton}>
-                  <Text style={{ color: "white"}}>Report</Text>
-                </Button>
-              </View>
-            </View>
-          </Modal>
+          {this.RemindModal()}
 				</View>
 			)
 		}
 	}
-
 }
 
 const styles = StyleSheet.create({
@@ -291,7 +303,7 @@ const styles = StyleSheet.create({
   submitReportButton: {
     justifyContent: "center",
     width: "40%",
-    backgroundColor: "tomato",
+    backgroundColor: "#3284f7",
   }
 })
 

@@ -10,25 +10,23 @@ import Rhino from "../assets/roomierhino.png";
 import { DbContext } from "../context";
 
 // Required for websocket functionality
-import {
-  getRoomMessages,
-  getUserRoom,
-  joinRoom,
-  createAndJoinRoom,
-} from "../src/request";
+import { getRoomMessages } from "../src/request";
 import * as websocket from "../src/websocket";
 
 const parseMsg = (msg) => {
+  console.log(msg);
   return {
-    _id: msg.giftedId || msg._id,
+    _id: msg.giftedId && msg.giftedId != "-1" ? msg.giftedId : msg._id,
     mongoId: msg._id,
     text: msg.data,
     createdAt: msg.createdAt || Date.now(),
     sent: true,
     system: msg.system,
+    senderEmail: msg.senderEmail,
     user: {
       _id: msg.senderId,
-      name: msg.senderId,
+      name: msg.senderEmail,
+      avatar: msg.senderId == "000000000000000000000000" ? Rhino : undefined
     },
   };
 };
