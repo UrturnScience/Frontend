@@ -35,7 +35,6 @@ class Preferences extends Component {
       newChoreName: "",
       newChoreRecurring: false,
       refreshing: false,
-      viewChoreInfo: false,
     }
   }
 
@@ -252,11 +251,12 @@ class Preferences extends Component {
             style={styles.modal}
           >
             <View style={styles.newChoreContainer}>
-              <View>
-                <Text style={{fontSize: 34, marginTop: 20, }}>Create a new chore</Text>
+              <View style={{ alignItems: "center" }}>
+                <Text style={{fontSize: 28, marginTop: 20, }}>Create a new chore</Text>
+                <Text style={{fontSize: 14, marginTop: 10, }}>This will be added to this week's draft</Text>
               </View>
               <View style={styles.newChoreForm}>
-                <Form >
+                <Form>
                   <Item floatingLabel>
                     <Label>Name</Label>
                     <Input
@@ -366,8 +366,10 @@ const styles = StyleSheet.create({
   newChoreContainer: {
     backgroundColor: "white",
     padding: 15,
-    paddingBottom: 200,
+    paddingBottom: 120,
     alignItems: "center",
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
   newChoreForm: {
     width: "60%",

@@ -10,25 +10,23 @@ import Rhino from "../assets/roomierhino.png";
 import { DbContext } from "../context";
 
 // Required for websocket functionality
-import {
-  getRoomMessages,
-  getUserRoom,
-  joinRoom,
-  createAndJoinRoom,
-} from "../src/request";
+import { getRoomMessages } from "../src/request";
 import * as websocket from "../src/websocket";
 
 const parseMsg = (msg) => {
+  console.log(msg);
   return {
-    _id: msg.giftedId || msg._id,
+    _id: msg.giftedId && msg.giftedId != "-1" ? msg.giftedId : msg._id,
     mongoId: msg._id,
     text: msg.data,
     createdAt: msg.createdAt || Date.now(),
     sent: true,
     system: msg.system,
+    senderEmail: msg.senderEmail,
     user: {
       _id: msg.senderId,
-      name: msg.senderId,
+      name: msg.senderEmail,
+      avatar: msg.senderId == "000000000000000000000000" ? Rhino : undefined
     },
   };
 };
@@ -60,8 +58,6 @@ class Chat extends React.Component {
         if (websocket.getWebSocket()) {
           websocket.getWebSocket().onmessage = (msg) => {
             const data = parseMsg(JSON.parse(msg.data));
-
-            console.log("RECEIVED MESSAGE FROM WEBSOCKET", data);
 
             if (data.user._id == this.context.user._id) {
               const sentIndex = this.state.messages.findIndex(
@@ -102,6 +98,16 @@ class Chat extends React.Component {
     websocket.getWebSocket().send(JSON.stringify(data));
   }
 
+  renderFooter(props) {
+    if (this.state.messages.length == 0) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.emptyMessagesText}>No messages have been sent!</Text>
+        </View>
+      )
+    }
+  }
+
   render() {
     return (
       <View style={{ backgroundColor: "white", flex: 1, paddingTop: 20 }}>
@@ -113,9 +119,22 @@ class Chat extends React.Component {
           user={{
             _id: this.context.user._id,
           }}
+          renderChatFooter={this.renderFooter.bind(this)}
         />
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: "100%",
+  },
+  emptyMessagesText: {
+    color: "grey",
+  }
+});
+
 export default Chat;
