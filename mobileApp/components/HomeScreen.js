@@ -33,8 +33,8 @@ class HomeScreen extends Component {
       viewReportModal: false,
       assignmentToReport: "",
       reportReason: "",
+      roomAssignments: null,
 		}
-	
 	}
 
 	static contextType = DbContext
@@ -57,12 +57,27 @@ class HomeScreen extends Component {
     })
 
 		this.setState({refreshing: false});
-	}
+  }
+  
+  getRoomAssignments(room) {
+    Axios.get(`${BACKEND_URL}/assignment/room/${room}`).then((response) => {
+      let chores = response.data.assignments.map(a => Axios.get(`${BACKEND_URL}/chore/${a.choreId}`));
+
+			Promise.all(chores).then(results => {
+				for (let i = 0; i < results.length; i++) {
+					response.data.assignments[i].chore = results[i].data.chore;
+				}
+				this.setState({
+					roomAssignments: response.data.assignments
+				});
+			});
+    });
+  }
 
 	componentDidMount() {
-		this.getAssignments(this.context.user);
+    this.getAssignments(this.context.user);
+    this.getRoomAssignments(this.context.room);
 	}
-
 
 	// toggles the chore as completed/not completed
 	toggleChoreCompletion(responseObj, assID){
@@ -75,23 +90,20 @@ class HomeScreen extends Component {
   }
   
   toggleModal() {
+    this.setState({ assignmentToReport: "" });
+    this.setState({ reportReason: "" });
     this.setState({ viewReportModal: !this.state.viewReportModal });
   }
 
-  getRoomAssignments() {
-    let assignments = [
-      {
-        value: "Sweep the floor"
-      },
-      {
-        value: "Take out the trash"
-      }
-    ];
-    return assignments;
-  }
-
   submitReport() {
-
+    console.log("SUBMIT REPORT");
+    Axios.post(`${BACKEND_URL}/assignment/report/${this.state.assignmentToReport}`, {
+      status: this.state.reportReason
+    }).then(() => {
+      this.toggleModal();
+    }).catch(e => {
+      console.log(e);
+    });
   }
 
 	//sets the refreshing spinner while data is being retrieved from the backend
@@ -101,7 +113,7 @@ class HomeScreen extends Component {
 	}
 
 	render(){
-		if (this.state.assignments == null) {
+		if (this.state.assignments == null || this.state.roomAssignments == null) {
 			return (
 			  <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
 				<Text>Loading assignments...</Text>
@@ -122,6 +134,10 @@ class HomeScreen extends Component {
 					contentContainerStyle={{flex: 1, justifyContent: "center", alignItems: "center"}}>
 						<View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
 							<Text style={{ color: "grey", fontSize: 16 }}>You have no chores assigned this week!</Text>
+              <TouchableOpacity style={styles.remindButton} onPress={this.toggleModal.bind(this)}>
+                <MaterialCommunityIcons name='chat-alert' size={20} color='lightgrey' />
+                <Text style={{ color: "grey", paddingLeft: 3, paddingBottom: 3, fontSize: 10 }}>Report</Text>
+              </TouchableOpacity>
 						</View>
 					</ScrollView>
 				</View>
@@ -174,18 +190,31 @@ class HomeScreen extends Component {
               <View style={styles.reportForm}>
                 <Dropdown 
                   label="Select assignment"
-                  data={this.getRoomAssignments()}
+                  data={
+                    this.state.roomAssignments
+                      .filter(ra => ra.userId != this.context.user._id)
+                      .map(ra => {
+                        return {
+                          label: ra.chore.name,
+                          value: ra._id
+                        }
+                      })
+                  }
+                  onChangeText={(val) => this.setState({ assignmentToReport: val })}
                 />
                 <Dropdown 
                   label="Select reason"
                   data={[
                     {
-                      value: "Not complete yet"
+                      label: "Not complete yet",
+                      value: "late"
                     },
                     {
-                      value: "Not done correctly"
+                      label: "Not done correctly",
+                      value: "wrong",
                     }
                   ]}
+                  onChangeText={(val) => this.setState({ reportReason: val })}
                 />
               </View>
               <View style={styles.modalButtons}>

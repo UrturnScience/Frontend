@@ -61,8 +61,6 @@ class Chat extends React.Component {
           websocket.getWebSocket().onmessage = (msg) => {
             const data = parseMsg(JSON.parse(msg.data));
 
-            console.log("RECEIVED MESSAGE FROM WEBSOCKET", data);
-
             if (data.user._id == this.context.user._id) {
               const sentIndex = this.state.messages.findIndex(
                 (m) => m.pending == true && m._id === data._id
